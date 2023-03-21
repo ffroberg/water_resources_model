@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-#from pyomo.environ import *
-import pyomo.environ as pyo
+from pyomo.environ import *
+#import pyomo.environ as pyo
 from pyomo.opt import SolverFactory
-
+#%%
 # Set Working directory
 datafolder=os.path.relpath(r'Data')
 
@@ -45,9 +45,10 @@ WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
+##############ask emma to help create path to github data folder
 savepath = r'/Users/frejafroberg/Desktop/Water_management/github_pl/water_resources_model' #adust this path to write results in specific folder on your system
 
-
+# Catchment data
 ncatch = scatch_char['ID'].astype(int).tolist() # Catchment IDs; Note the use of the python dictionary data type for data items
 nassets = assets_char['ID'].astype(int).tolist()                   # Reservoir IDs - transform to list
 scatch_areas = scatch_char.set_index('ID').to_dict()['Area (km2)'] # subcatchment areas in km2. Keys are specific to the EXCEL input file!
@@ -126,8 +127,10 @@ for c in scatch_reservoir: # Replace reservoir name with reservoir ID in scatch_
 scatch_reservoir2 = {y:x for x,y in scatch_reservoir.items()} # invert the dictionary - can be used to look up catchment belonging to each reservoir
 del scatch_reservoir2[-1] # delete key -1
 
-
-#----------------------------------------------------------------------------------------------
+#######
+# model and opt here
+#######
+#------------------------------------------------------------------------------------------
 # Create and run the pyomo model
 #----------------------------------------------------------------------------------------------
 # Define decision variables and parameters
@@ -167,7 +170,7 @@ model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,de
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResSini = Param(model.nres, within=NonNegativeReals,initialize = AResini, default=0) # Set initial reservoir storage for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin diversion in percent of flow downstream of upper Chao Phraya; Just one number, therefore no index, dimensionless, fraction
-
+#Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
@@ -249,15 +252,16 @@ def endstor_c(model, nr):
     return model.Send[nr,model.endtime] == model.ResSini[nr]
 model.endstor = Constraint(model.nres, rule=endstor_c)
 
-#Solve the model
+# Solve the model
 
 model.dual = Suffix(direction=Suffix.IMPORT) # formulate dual problem to provide shadow prices
 
 # Create a solver
-opt = SolverFactory('glpsol') #
+opt = SolverFactory('glpk')
 #Solve
 results = opt.solve(model)
 
+####
 # Output of objective function, optimal decisions and shadow prices
 #----------------------------------------------------------------------------------------------
 # You can of course adjust all file names as you may wish
@@ -279,8 +283,8 @@ for c in ncatch:
         moptD[t]=model.AgDem[c,t]-model.Aag[c,t].value
     optAAg[c]=moptA
     optDAg[c]=moptD
-optAAg = pandas.DataFrame.from_dict(optAAg)
-optDAg = pandas.DataFrame.from_dict(optDAg)
+optAAg = pd.DataFrame.from_dict(optAAg)
+optDAg = pd.DataFrame.from_dict(optDAg)
 optAAg.to_excel(outpath)
 optDAg.to_excel(defoutpath)
 
@@ -297,8 +301,8 @@ for c in ncatch:
         moptD[t]=model.IndDem[c]-model.Aind[c,t].value
     optAInd[c]=moptA
     optDInd[c]=moptD
-optAInd = pandas.DataFrame.from_dict(optAInd)
-optDInd = pandas.DataFrame.from_dict(optDInd)
+optAInd = pd.DataFrame.from_dict(optAInd)
+optDInd = pd.DataFrame.from_dict(optDInd)
 optAInd.to_excel(outpath)
 optDInd.to_excel(defoutpath)
         
@@ -315,8 +319,8 @@ for c in ncatch:
         moptD[t]=model.DomDem[c]-model.Adom[c,t].value
     optADom[c]=moptA
     optDDom[c]=moptD
-optADom = pandas.DataFrame.from_dict(optADom)
-optDDom = pandas.DataFrame.from_dict(optDDom)
+optADom = pd.DataFrame.from_dict(optADom)
+optDDom = pd.DataFrame.from_dict(optDDom)
 optADom.to_excel(outpath)
 optDDom.to_excel(defoutpath)  
 
@@ -328,7 +332,7 @@ for c in ncatch:
     for t in ntimes:
         moptA[t]=model.Qds[c,t].value
     optOF[c]=moptA
-optOF = pandas.DataFrame.from_dict(optOF)
+optOF = pd.DataFrame.from_dict(optOF)
 optOF.to_excel(outpath)
 
 # Reservoir release, saved to path outpath
@@ -339,7 +343,7 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.Rel[r,t].value
     optRelease[r]=moptA
-optRelease = pandas.DataFrame.from_dict(optRelease)
+optRelease = pd.DataFrame.from_dict(optRelease)
 optRelease.to_excel(outpath)
 
 # Reservoir spills, saved to path outpath
@@ -350,7 +354,7 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.Spill[r,t].value
     optSpill[r]=moptA
-optSpill = pandas.DataFrame.from_dict(optSpill)
+optSpill = pd.DataFrame.from_dict(optSpill)
 optSpill.to_excel(outpath)
 
 # Reservoir end storage, saved to path outpath
@@ -361,9 +365,9 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.Send[r,t].value
     optStor[r]=moptA
-optStor = pandas.DataFrame.from_dict(optStor)
+optStor = pd.DataFrame.from_dict(optStor)
 optStor.to_excel(outpath)  
-
+#****************************************************************************
 #Save Shadow prices for all constraints
 #******************************************************************************
 # Ag demand constraints shadow prices saved to path outpath
@@ -374,7 +378,7 @@ for c in ncatch:
     for t in ntimes:
         moptA[t]=model.dual[model.wd_ag[c,t]]
     SPAgDem[c]=moptA
-SPAgDem = pandas.DataFrame.from_dict(SPAgDem)
+SPAgDem = pd.DataFrame.from_dict(SPAgDem)
 SPAgDem.to_excel(outpath)
 
     
@@ -386,7 +390,7 @@ for c in ncatch:
     for t in ntimes:
         moptA[t]=model.dual[model.wd_ind[c,t]]
     SPIndDem[c]=moptA
-SPIndDem = pandas.DataFrame.from_dict(SPIndDem)
+SPIndDem = pd.DataFrame.from_dict(SPIndDem)
 SPIndDem.to_excel(outpath)
     
 # Domestic demand constraints shadow prices saved to path outpath
@@ -397,7 +401,7 @@ for c in ncatch:
     for t in ntimes:
         moptA[t]=model.dual[model.wd_dom[c,t]]
     SPDomDem[c]=moptA
-SPDomDem = pandas.DataFrame.from_dict(SPDomDem)
+SPDomDem = pd.DataFrame.from_dict(SPDomDem)
 SPDomDem.to_excel(outpath)
     
 # Catchment water balances shadow prices saved to outpath
@@ -408,7 +412,7 @@ for c in ncatch:
     for t in ntimes:
         moptA[t]=model.dual[model.wb[c,t]]
     SPCWB[c]=moptA
-SPCWB = pandas.DataFrame.from_dict(SPCWB)
+SPCWB = pd.DataFrame.from_dict(SPCWB)
 SPCWB.to_excel(outpath)
     
 # Reservoir mass balance constraint shadow prices saved to outpath
@@ -419,7 +423,7 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.dual[model.res[r,t]]
     SPResMB[r]=moptA
-SPResMB = pandas.DataFrame.from_dict(SPResMB)
+SPResMB = pd.DataFrame.from_dict(SPResMB)
 SPResMB.to_excel(outpath)
 
 # Reservoir capacity constraint shadow prices saved to outpath
@@ -430,7 +434,7 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.dual[model.rescap[r,t]]
     SPResCap[r]=moptA
-SPResCap = pandas.DataFrame.from_dict(SPResCap)
+SPResCap = pd.DataFrame.from_dict(SPResCap)
 SPResCap.to_excel(outpath)
 
 # Turbine capacity constraint shadow prices saved to outpath
@@ -441,8 +445,13 @@ for r in model.nres:
     for t in ntimes:
         moptA[t]=model.dual[model.turcap[r,t]]
     SPTCap[r]=moptA
-SPTCap = pandas.DataFrame.from_dict(SPTCap)
+SPTCap = pd.DataFrame.from_dict(SPTCap)
 SPTCap.to_excel(outpath)
+
+#----------------------------------------------------------------------------------------------
+# Output of objective function, optimal decisions and shadow prices
+#----------------------------------------------------------------------------------------------
+# You can of course adjust all
 
 # Plotting
 #***********************************************************
@@ -478,8 +487,8 @@ plt.xticks(np.arange(len(AvROpl.keys())), AvROpl.keys())
 plt.xlabel('Catchment ID')
 plt.ylabel('Average runoff in million m^3 per month')
 # Produce table that you can join to the subcatchment attribute table in QGIS
-AvROpc_pandas = pandas.DataFrame.from_dict(AvROpl, orient = 'index',columns=['Average RO in m3/month'])
-AvROpc_pandas.to_excel(savepath + os.sep + 'AvROpl.xlsx',index_label='ID')
+AvROpc_pd = pd.DataFrame.from_dict(AvROpl, orient = 'index',columns=['Average RO in m3/month'])
+AvROpc_pd.to_excel(savepath + os.sep + 'AvROpl.xlsx',index_label='ID')
 # Average irrigation demand per catchment
 plt.figure(figsize=[20,10])
 AvAgDempl = dict()
@@ -489,8 +498,12 @@ plt.bar(np.arange(len(AvAgDempl.keys())),AvAgDempl.values())
 plt.xticks(np.arange(len(AvAgDempl.keys())), AvAgDempl.keys())
 plt.xlabel('Catchment ID')
 plt.ylabel('Average irrigation demand in million m^3 per month')
+
+#######
+
+
 # Produce table that you can join to the subcatchment attribute table in QGIS
-AvAgDempl_pandas = pandas.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average RO in m3/month'])
+AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average RO in m3/month'])
 AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
 # irrigation demand and allocation
 plt.figure(figsize=[20,10])
@@ -527,7 +540,7 @@ plt.xticks(np.arange(len(AvSPCWB.keys())), AvSPCWB.keys())
 plt.xlabel('Catchment ID')
 plt.ylabel('Average Water Shadow price, THB per m3')
 # Produce table that you can join to the subcatchment attribute table in QGIS
-AvSPCWB_pandas = pandas.DataFrame.from_dict(AvSPCWB, orient = 'index',columns=['Average Water Shadow price, THB per m3'])
+AvSPCWB_pandas = pd.DataFrame.from_dict(AvSPCWB, orient = 'index',columns=['Average Water Shadow price, THB per m3'])
 AvSPCWB_pandas.to_excel(savepath + os.sep + 'AvSPCWB.xlsx',index_label='ID')
 # Reservoir capacity Shadow price time series for any reservoir
 plt.figure(figsize=[20,10])
@@ -546,5 +559,6 @@ plt.bar(AvSPResCap.keys(),AvSPResCap.values())
 plt.xlabel('Reservoir ID')
 plt.ylabel('Average reservoir capacity shadow price, THB per m3')
 # Produce table that you can join to the subcatchment attribute table in QGIS
-AvSPResCap_pandas = pandas.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
+AvSPResCap_pandas = pd.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
 AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID')
+
