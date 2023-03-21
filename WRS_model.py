@@ -502,7 +502,7 @@ plt.ylabel('Average irrigation demand in million m^3 per month')
 
 
 # Produce table that you can join to the subcatchment attribute table in QGIS
-AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average RO in m3/month'])
+AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average Agreggation demand in m3/month'])
 AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
 # irrigation demand and allocation
 plt.figure(figsize=[20,10])
