@@ -46,7 +46,7 @@ WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 ##############ask emma to help create path to github data folder
-savepath = r'/Users/frejafroberg/Desktop/Water_management/github_pl/water_resources_model' #adust this path to write results in specific folder on your system
+savepath = r'Data' #adust this path to write results in specific folder on your system
 
 # Catchment data
 ncatch = scatch_char['ID'].astype(int).tolist() # Catchment IDs; Note the use of the python dictionary data type for data items
@@ -562,3 +562,5 @@ plt.ylabel('Average reservoir capacity shadow price, THB per m3')
 AvSPResCap_pandas = pd.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
 AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID')
 
+
+# %%
