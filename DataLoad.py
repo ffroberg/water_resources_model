@@ -7,8 +7,7 @@ import math
 from pyomo.environ import *
 #import pyomo.environ as pyo
 from pyomo.opt import SolverFactory
-#%%
-# Set Working directory
+
 datafolder=os.path.relpath(r'Data')
 
 scatch_char = pd.read_excel(os.path.join(datafolder,'Subcatchments_CPY_input.xlsx')) # EXCEL File with subcatchment characteristics
@@ -561,6 +560,3 @@ plt.ylabel('Average reservoir capacity shadow price, THB per m3')
 # Produce table that you can join to the subcatchment attribute table in QGIS
 AvSPResCap_pandas = pd.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
 AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID')
-
-
-# %%
