@@ -455,6 +455,9 @@ SPTCap.to_excel(outpath)
 # Plotting
 #***********************************************************
 # KC over time
+
+
+
 plt.figure(figsize=[20,10])
 Kct=[]
 for ts in ntimestamps:
@@ -463,12 +466,16 @@ plt.bar(ntimes[0:24],Kct[0:24])
 plt.xlabel('time step')
 plt.ylabel('Crop Coefficient, dimensionless')
 # Runoff time series from any catchment
+
+
 plt.figure(figsize=[20,10])
+
 catchselect = 24
 plt.bar(ROpl[catchselect].keys(),ROpl[catchselect].values())
 plt.xlabel('time step')
 plt.ylabel('runoff in million m^3 per month')
 plt.title('Catchment: ' + str(catchselect))
+
 # Ag demand time series for any catchment
 plt.figure(figsize=[20,10])
 catchselect = 24
@@ -504,9 +511,29 @@ plt.ylabel('Average irrigation demand in million m^3 per month')
 # Produce table that you can join to the subcatchment attribute table in QGIS
 AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average RO in m3/month'])
 AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
+
+
+catchments = connectivity['CATCHID']
+
+for i in range(len(catchments)):
+    catchselect = catchments[i]
+    seltimes = np.arange(1, 24, 1)
+    
+    fig, ax = plt.subplots()
+    ax.bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
+    ax.bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
+    ax.set_xlabel('time step')
+    ax.set_ylabel('Irrigation water demand and irrigation water allocation, million m3')
+    ax.set_title('Catchment: ' + str(catchselect))
+    ax.legend(('Demand', 'Allocation'))
+
+    # show the plot
+    plt.show()
+
+
 # irrigation demand and allocation
 plt.figure(figsize=[20,10])
-catchselect = 28
+catchselect = 1
 seltimes = np.arange(1,24,1)
 plt.bar(AgDempl[catchselect].keys(),AgDempl[catchselect].values())
 plt.bar(optAAg[catchselect].keys(),optAAg[catchselect].values)
@@ -514,6 +541,8 @@ plt.xlabel('time step')
 plt.ylabel('Irrigation water demand and irrigation water allocation, million m3')
 plt.title('Catchment: ' + str(catchselect))
 plt.legend(('Demand','Allocation'))
+
+
 # End Storage time series
 plt.figure(figsize=[20,10])
 resselect = 'Bhumipol'
