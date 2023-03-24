@@ -551,13 +551,30 @@ plt.bar(optStor[rselect].keys(),optStor[rselect].values)
 plt.xlabel('time step')
 plt.ylabel('End storage in million m^3')
 plt.title('Reservoir: ' + str(resselect))
+
 # Water Shadow price time series for any catchment
-plt.figure(figsize=[20,10])
-catchselect = 24
-plt.bar(SPCWB[catchselect].keys(),SPCWB[catchselect].values)
-plt.xlabel('time step')
-plt.ylabel('Water Shadow price, THB per m3')
-plt.title('Catchment: ' + str(catchselect))
+# loop through all columns in SPCWB
+for col in SPCWB.columns:
+    plt.figure(figsize=[20,10])
+    plt.bar(SPCWB.index, SPCWB[col])
+    plt.xlabel('time step')
+    plt.ylabel('Water Shadow price, THB per m3')
+    plt.title('Catchment ' + str(col) + ' Water Shadow Price Plot')
+    plt.show()
+
+
+#####Old plot
+
+#plt.figure(figsize=[20,10])
+#catchselect = 24
+#plt.bar(SPCWB[catchselect].keys(),SPCWB[catchselect].values)
+#plt.xlabel('time step')
+#plt.ylabel('Water Shadow price, THB per m3')
+#plt.title('Catchment: ' + str(catchselect))
+
+
+
+
 # Average water shadow price per catchment
 plt.figure(figsize=[20,10])
 AvSPCWB = dict()
