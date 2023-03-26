@@ -607,9 +607,10 @@ plt.ylabel('Average reservoir capacity shadow price, THB per m3')
 AvSPResCap_pandas = pd.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
 AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID')
 
-
-# Deficit and demand plots for all catchments
+DeficitSum = dict()
+# Deficit and demand plots for all catchments + sum of deficit
 for i in range(len(ncatch)):
+    
     plt.figure(figsize=[20,10])
     catchselect = ncatch[i]
     seltimes = np.arange(1,24,1)
@@ -619,3 +620,6 @@ for i in range(len(ncatch)):
     plt.ylabel('Irrigation water demand and optimal deficit, million m3')
     plt.title('Catchment: ' + str(catchselect))
     plt.legend(('Ag. Demand','Ag. optimal deficit'))
+    
+    # Calculate sum of deficit for all catchment and add to a dictionary
+    DeficitSum[catchselect] = np.sum(optDAg[catchselect])
