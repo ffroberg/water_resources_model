@@ -198,6 +198,7 @@ def wd_dom_c(model, nc, nt):
     return model.Adom[nc,nt] <= model.DomDem[nc]
 model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 
+
 # Catchment water balance per catchment.. Active for every time step and catchment, thus two indices
 # Downstream flow is equal to inflow plus runoff minus use for all catchments, except 33 and 28, where inflow is partitioned according to model.ThaChin
 def wb_c(model, nc, nt):
@@ -285,10 +286,17 @@ for c in ncatch:
         moptD[t]=model.AgDem[c,t]-model.Aag[c,t].value
     optAAg[c]=moptA
     optDAg[c]=moptD
+
+# Average optimal Allocation
+AvoptAAg = dict()
+for cindex in optAAg.keys():
+    AvoptAAg[cindex] = np.mean(list(optAAg[cindex].values()))
+
 optAAg = pd.DataFrame.from_dict(optAAg)
 optDAg = pd.DataFrame.from_dict(optDAg)
 optAAg.to_excel(outpath)
 optDAg.to_excel(defoutpath)
+
 
 # Industrial allocations, saved to path outpath
 outpath =  savepath + os.sep + r'Ind_optimal_allocations.xlsx'
@@ -303,11 +311,20 @@ for c in ncatch:
         moptD[t]=model.IndDem[c]-model.Aind[c,t].value
     optAInd[c]=moptA
     optDInd[c]=moptD
+
+# Average optimal Allocation
+AvoptAInd = dict()
+for cindex in optAInd.keys():
+    AvoptAInd[cindex] = np.mean(list(optAInd[cindex].values()))
+
+
 optAInd = pd.DataFrame.from_dict(optAInd)
 optDInd = pd.DataFrame.from_dict(optDInd)
 optAInd.to_excel(outpath)
 optDInd.to_excel(defoutpath)
-        
+
+
+
 # Domestic allocations, saved to path outpath
 outpath =  savepath + os.sep + r'Dom_optimal_allocations.xlsx'
 defoutpath =  savepath + os.sep + r'Dom_deficits_optimal.xlsx'
@@ -321,6 +338,12 @@ for c in ncatch:
         moptD[t]=model.DomDem[c]-model.Adom[c,t].value
     optADom[c]=moptA
     optDDom[c]=moptD
+
+# Average optimal Allocation
+AvoptADom = dict()
+for cindex in optADom.keys():
+    AvoptADom[cindex] = np.mean(list(optADom[cindex].values()))
+
 optADom = pd.DataFrame.from_dict(optADom)
 optDDom = pd.DataFrame.from_dict(optDDom)
 optADom.to_excel(outpath)
@@ -621,7 +644,6 @@ AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID
 DeficitSum = dict()
 # Deficit and demand plots for all catchments + sum of deficit
 for i in range(len(ncatch)):
-    
     plt.figure(figsize=[20,10])
     catchselect = ncatch[i]
     seltimes = np.arange(1,24,1)
@@ -634,3 +656,22 @@ for i in range(len(ncatch)):
     
     # Calculate sum of deficit for all catchment and add to a dictionary
     DeficitSum[catchselect] = np.sum(optDAg[catchselect])
+
+
+# Sum of all three water demands
+
+SumDem = dict()
+for key in DomDem.keys():
+    SumDem[key] = IndDem[key] + AvAgDempl[key] + DomDem[key]
+
+
+SumA = dict()
+for key in AvoptADom.keys():
+    SumA[key] = AvoptADom[key] + AvoptAAg[key] + AvoptAInd[key]
+
+# Add to DataFrames and export to csv
+SumDem_pandas = pd.DataFrame.from_dict(SumDem, orient = 'index',columns=['Demand [m3]'])
+SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
+
+SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
+SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
