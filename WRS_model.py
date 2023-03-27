@@ -74,11 +74,13 @@ AgDem = dict() # Create empty dictionary for agricultural demand as dictionary w
 AgDempl = dict() # Create empty dictionary for agricultural demand as nested dictionary - for plotting
 RO = dict() # Create empty dictionary for runoff as dictionary with double index n - for use in pyomo
 ROpl = dict() # Create empty dictionary for runoff as nested dictionary - for plotting
+ROindividual = dict ()
 for c in ncatch:
     IndDem[c] = scatch_people[c]*per_cap_ind_demand/12/1E6 # industrial demand million m3 per month = number of people times per capita demand
     DomDem[c] = scatch_people[c]*per_cap_dom_demand/12/1E6 # domestic demand million m3 per month = number of people times per capita demand
     AgDempl[c]=dict() # create one empty sub-dictionary per catchment
     ROpl[c]=dict() # create one empty sub-dictionary per catchment
+    ROindividual[c] = dict()
     for t in ntimes: # loop through all time steps
         tstamp = ntsdic[t] # look up the time stamp corresponding to the time step
         irrigation_rate = (Kc(tstamp)*pet_rate[c][tstamp]*365/12 - prec_rate[c][tstamp])*(1+saltLR)/basineff #Calculate the irrigation rate
@@ -88,6 +90,7 @@ for c in ncatch:
         RO[(c,t)] = runoff_rate[c][tstamp]*365/12/1000*scatch_areas[c] # Runoff generated in each catchment in million m3 per month
         AgDempl[c][t] = irrigation_rate/1000*scatch_airr[c]/100 # same values stored in nested dictionary
         ROpl[c][t] = runoff_rate[c][tstamp]*365/12/1000*scatch_areas[c] # same values stored in nested dictionary
+        ROindividual[c][t] = runoff_rate[c][tstamp]*365/12/1000 # m/month
 
 # Reservoir data
 Aname = assets_char.set_index('ID').to_dict()['Name'] # Asset/Reservoir name; dictionary relating name to ID
@@ -488,6 +491,7 @@ plt.figure(figsize=[20,10])
 AvROpl = dict()
 for cindex in ROpl.keys():
     AvROpl[cindex] = np.mean(list(ROpl[cindex].values()))
+
 plt.bar(np.arange(len(AvROpl.keys())),AvROpl.values())
 plt.xticks(np.arange(len(AvROpl.keys())), AvROpl.keys())
 plt.xlabel('Catchment ID')
@@ -495,6 +499,13 @@ plt.ylabel('Average runoff in million m^3 per month')
 # Produce table that you can join to the subcatchment attribute table in QGIS
 AvROpc_pd = pd.DataFrame.from_dict(AvROpl, orient = 'index',columns=['Average RO in m3/month'])
 AvROpc_pd.to_excel(savepath + os.sep + 'AvROpl.xlsx',index_label='ID')
+
+AvROindividual = dict()
+for cindex in ROindividual.keys():
+    AvROindividual[cindex] = np.mean(list(ROindividual[cindex].values()))
+AvROindividualpc_pd = pd.DataFrame.from_dict(AvROindividual, orient = 'index',columns=['Average RO in m/month'])
+AvROindividualpc_pd.to_excel(savepath + os.sep + 'AvROindividual.xlsx',index_label='ID')
+
 # Average irrigation demand per catchment
 plt.figure(figsize=[20,10])
 AvAgDempl = dict()
