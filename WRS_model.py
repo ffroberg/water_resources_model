@@ -500,6 +500,8 @@ plt.ylabel('Average runoff in million m^3 per month')
 AvROpc_pd = pd.DataFrame.from_dict(AvROpl, orient = 'index',columns=['Average RO in m3/month'])
 AvROpc_pd.to_excel(savepath + os.sep + 'AvROpl.xlsx',index_label='ID')
 
+
+# Average runoff for each catchment without their area. Unit m/moth
 AvROindividual = dict()
 for cindex in ROindividual.keys():
     AvROindividual[cindex] = np.mean(list(ROindividual[cindex].values()))
