@@ -7,6 +7,7 @@ import math
 from pyomo.environ import *
 #import pyomo.environ as pyo
 from pyomo.opt import SolverFactory
+test = np.array([1,2,3,4,5])
 
 datafolder=os.path.relpath(r'Data')
 
