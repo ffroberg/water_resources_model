@@ -514,11 +514,15 @@ AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
 
 
 catchments = connectivity['CATCHID']
+sum_dem = np.array([])
+sum_allo = np.array([])
 
 for i in range(len(catchments)):
     catchselect = catchments[i]
     seltimes = np.arange(1, 24, 1)
-    
+    #sums yearly demand and allocation for each catchment
+    sum_dem = np.append(sum_dem, sum(AgDempl[catchselect].values()))
+    sum_allo = np.append(sum_allo, sum(optAAg[catchselect].values))
     fig, ax = plt.subplots()
     ax.bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
     ax.bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
@@ -530,6 +534,14 @@ for i in range(len(catchments)):
     # show the plot
     plt.show()
 
+# percentage of demand met for each catchment
+perc_dem = (sum_allo/sum_dem)*100
+str_catchments = [str(x) for x in catchments]
+plt.figure(figsize=[20,10])
+plt.bar(str_catchments,perc_dem)
+plt.xlabel('Catchment ID')
+plt.ylabel('Percentage of demand met by allocation')
+plt.title('Percentage of demand met by allocation')
 
 # irrigation demand and allocation
 plt.figure(figsize=[20,10])
