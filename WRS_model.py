@@ -482,6 +482,7 @@ SPTCap.to_excel(outpath)
 #***********************************************************
 # KC over time
 
+plt.rcParams.update({'font.size': 16})
 
 
 plt.figure(figsize=[20,10])
@@ -553,19 +554,21 @@ catchments = connectivity['CATCHID']
 sum_dem = np.array([])
 sum_allo = np.array([])
 
+
 for i in range(len(catchments)):
+    plt.figure(figsize=[20,10])
     catchselect = catchments[i]
     seltimes = np.arange(1, 24, 1)
     #sums yearly demand and allocation for each catchment
     sum_dem = np.append(sum_dem, sum(AgDempl[catchselect].values()))
     sum_allo = np.append(sum_allo, sum(optAAg[catchselect].values))
-    fig, ax = plt.subplots()
-    ax.bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
-    ax.bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
-    ax.set_xlabel('time step')
-    ax.set_ylabel('Irrigation water demand and irrigation water allocation, million m3')
-    ax.set_title('Catchment: ' + str(catchselect))
-    ax.legend(('Demand', 'Allocation'))
+    #fig, ax = plt.subplots()
+    plt.bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
+    plt.bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
+    plt.xlabel('time step')
+    plt.ylabel('Irrigation water demand and irrigation water allocation, million m3')
+    plt.title('Catchment: ' + str(catchselect))
+    plt.legend(('Demand', 'Allocation'))
 
     # show the plot
     plt.show()
