@@ -93,6 +93,7 @@ for c in ncatch:
         ROindividual[c][t] = runoff_rate[c][tstamp]*365/12/1000 # m/month
 
 # Reservoir data
+## add flood safety storage to reservoir (floods will not be visible on mnth time-scale) ##
 Aname = assets_char.set_index('ID').to_dict()['Name'] # Asset/Reservoir name; dictionary relating name to ID
 Aname2 = {y:x for x,y in Aname.items()} # invert the dictionary, i.e. produce a dictionary that gives the ID for each name       
 Aweq = assets_char.set_index('ID').to_dict()['Estimated water-energy equivalent (kWh/m3)'] # Water energy equivalent for each reservoir
