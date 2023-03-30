@@ -45,7 +45,7 @@ WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 ##############ask emma to help create path to github data folder
-savepath = r'Scenario3_savepath' #adust this path to write results in specific folder on your system
+savepath = r'Scenario3_savepath' #adjust this path to write results in specific folder on your system
 
 # Catchment data
 ncatch = scatch_char['ID'].astype(int).tolist() # Catchment IDs; Note the use of the python dictionary data type for data items
@@ -93,7 +93,7 @@ for c in ncatch:
         ROindividual[c][t] = runoff_rate[c][tstamp]*365/12/1000 # m/month
 
 # Reservoir data
-## add flood safety storage to reservoir (floods will not be visible on mnth time-scale) ##
+## to do: add flood safety storage to reservoir (floods will not be visible on mnth time-scale) ##
 Aname = assets_char.set_index('ID').to_dict()['Name'] # Asset/Reservoir name; dictionary relating name to ID
 Aname2 = {y:x for x,y in Aname.items()} # invert the dictionary, i.e. produce a dictionary that gives the ID for each name       
 Aweq = assets_char.set_index('ID').to_dict()['Estimated water-energy equivalent (kWh/m3)'] # Water energy equivalent for each reservoir
@@ -109,6 +109,16 @@ for reskey in AResCap.keys(): # catch any missing values
 for ires in AResCap: # catch any missing NaNs
     if math.isnan(AResCap[ires]):
         AResCap[ires]=0
+
+# Create an empty list to store the monsoon months
+monsoon = []
+# Loop through month vector
+for num in range(len(ntimes)):
+  # Add each month to the list if it is divisible by 12 (July-October is 7-10)
+  if num % 12 == 7 or num % 12 == 8 or num % 12 == 9 or num % 12 == 10:
+    monsoon.append(num)
+
+
 AResini=dict() # Initial reservoir storage in million m3
 for reskey in AResCap.keys(): # Set to half of maximum storage and catch any missing values
     try:
@@ -242,7 +252,10 @@ model.res = Constraint(model.nres, model.ntimes, rule=res_c)
 # Reservoir capacity
 # storage in each reservoir should be less than capacity. Active for every time step and reservoir, thus two indices
 def rescap_c(model, nr, nt):
-    return model.Send[nr,nt] <= model.ResCap[nr]
+    if nt in monsoon:
+        return model.Send[nr,nt] <= model.ResCap[nr]*0.5 # limits capacity to x% in monsoon season
+    else:
+        return model.Send[nr,nt] <= model.ResCap[nr]
 model.rescap = Constraint(model.nres, model.ntimes, rule=rescap_c)
 
 # Turbine capacity
