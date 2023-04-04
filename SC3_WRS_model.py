@@ -674,6 +674,13 @@ for i in range(len(ncatch)):
     # Calculate sum of deficit for all catchment and add to a dictionary
     DeficitSum[catchselect] = np.sum(optDAg[catchselect])
 
+# Reservoir release plots
+plt.figure(figsize=[20,10])
+plt.bar(optRelease[rselect].keys(),optRelease[rselect].values)
+plt.xlabel('time step')
+plt.ylabel('Reservoir release')
+plt.title('Reservoir: ' + str(rselect))
+
 
 # Sum of all three water demands
 
