@@ -44,7 +44,7 @@ WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
-##############ask emma to help create path to github data folder
+
 savepath = r'Data' #adust this path to write results in specific folder on your system
 
 # Catchment data
