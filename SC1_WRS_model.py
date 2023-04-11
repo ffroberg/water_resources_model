@@ -10,7 +10,7 @@ from pyomo.opt import SolverFactory
 
 # Using the datafiles from this folder
 # Excel files have been changed to no longer include KSA reservoir. The rest of the code is unchanged.
-datafolder=os.path.relpath(r'Scenario3_savepath')
+datafolder=os.path.relpath(r'Scenario1_savepath')
 
 
 scatch_char = pd.read_excel(os.path.join(datafolder,'Subcatchments_CPY_input.xlsx')) # EXCEL File with subcatchment characteristics
@@ -48,7 +48,7 @@ WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 
-savepath = r'Scenario3_savepath' #adust this path to write results in specific folder on your system
+savepath = r'Scenario1_savepath' #adust this path to write results in specific folder on your system
 
 # Catchment data
 ncatch = scatch_char['ID'].astype(int).tolist() # Catchment IDs; Note the use of the python dictionary data type for data items
