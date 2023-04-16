@@ -3,6 +3,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import math
 from pyomo.environ import *
 #import pyomo.environ as pyo
@@ -16,6 +17,7 @@ pet = pd.read_excel(os.path.join(datafolder,'CRU_PET_CPY_1991_2020.xlsx'))
 grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'))
 connectivity = pd.read_excel(os.path.join(datafolder, 'CPY_catch_connectivity.xlsx'))
 assets_char = pd.read_excel(os.path.join(datafolder, 'Assets_CPY_input.xlsx'))
+
 
 def Kc(tstamp): # Monthly crop coefficient values - modify this if you want time variable Kc
     return {
