@@ -11,9 +11,6 @@ import pandas as pd
 import numpy as np
 import os
 
-# TEST
-a = 3
-
 
 # Import data
 datafolder=os.path.relpath(r'Data')
