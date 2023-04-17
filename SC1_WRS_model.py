@@ -755,3 +755,6 @@ SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
 SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+print('Emma er klog')
+
