@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import os
 
-
+# hej
 # Import data
 datafolder=os.path.relpath(r'Data')
 MCA = pd.read_excel(os.path.join(datafolder, 'Multivariate_table_short.xlsx'))
