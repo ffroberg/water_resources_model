@@ -3,7 +3,6 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import ticker
 import math
 from pyomo.environ import *
 #import pyomo.environ as pyo
@@ -17,7 +16,6 @@ pet = pd.read_excel(os.path.join(datafolder,'CRU_PET_CPY_1991_2020.xlsx'))
 grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'))
 connectivity = pd.read_excel(os.path.join(datafolder, 'CPY_catch_connectivity.xlsx'))
 assets_char = pd.read_excel(os.path.join(datafolder, 'Assets_CPY_input.xlsx'))
-
 
 def Kc(tstamp): # Monthly crop coefficient values - modify this if you want time variable Kc
     return {
@@ -45,9 +43,10 @@ WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
+# add WTP for ecosystem
+WTPEco = 0.3*37 # THB / m3 or million THB per million m3
 
-
-savepath = r'Data' #adust this path to write results in specific folder on your system
+savepath = r'test_savepath' #adust this path to write results in specific folder on your system
 
 # Catchment data
 ncatch = scatch_char['ID'].astype(int).tolist() # Catchment IDs; Note the use of the python dictionary data type for data items
@@ -77,6 +76,7 @@ AgDempl = dict() # Create empty dictionary for agricultural demand as nested dic
 RO = dict() # Create empty dictionary for runoff as dictionary with double index n - for use in pyomo
 ROpl = dict() # Create empty dictionary for runoff as nested dictionary - for plotting
 ROindividual = dict ()
+# add ecosystem demand
 for c in ncatch:
     IndDem[c] = scatch_people[c]*per_cap_ind_demand/12/1E6 # industrial demand million m3 per month = number of people times per capita demand
     DomDem[c] = scatch_people[c]*per_cap_dom_demand/12/1E6 # domestic demand million m3 per month = number of people times per capita demand
@@ -95,7 +95,6 @@ for c in ncatch:
         ROindividual[c][t] = runoff_rate[c][tstamp]*365/12/1000 # m/month
 
 # Reservoir data
-## add flood safety storage to reservoir (floods will not be visible on mnth time-scale) ##
 Aname = assets_char.set_index('ID').to_dict()['Name'] # Asset/Reservoir name; dictionary relating name to ID
 Aname2 = {y:x for x,y in Aname.items()} # invert the dictionary, i.e. produce a dictionary that gives the ID for each name       
 Aweq = assets_char.set_index('ID').to_dict()['Estimated water-energy equivalent (kWh/m3)'] # Water energy equivalent for each reservoir
@@ -153,6 +152,7 @@ model.Qds  = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # note dou
 model.Rel   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One release per month and per reservoir. turbined power, MCM
 model.Spill   = Var(model.nres, model.ntimes, within=NonNegativeReals) #  note double index. One spill per month and per reservoir. Water flowing past the turbines, MCM
 model.Send   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One end storage per month and per reservoir. MCM
+model.Aeco = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # Ecosystem allocation per time step and per subcatchment, MCM
 
 # Declare parameters
 model.endtime = Param(initialize = ntimes[-1]) # find end time step of the model
@@ -170,6 +170,7 @@ model.WTPag  = Param(within=NonNegativeReals,initialize = WTPag) # Set WTP for a
 model.WTPInd  = Param(within=NonNegativeReals,initialize = WTPInd) # Set WTP for industrial water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPDom  = Param(within=NonNegativeReals,initialize = WTPDom) # Set WTP for domestic water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPPow = Param(within=NonNegativeReals,initialize = WTPPow) # Set WTP for electical power, assumed constant in time and uniform across catchments here, therefore no index, THB/MWh
+model.WTPEco = Param(within=NonNegativeReals,initialize = WTPEco)
 model.Resweq = Param(model.nres, within=NonNegativeReals,initialize = Aweq,default=0) # Set water-energy equivalent for all reservoirs; varies from reservoir to reservoir, therefore 1 index, kWh/m3
 model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,default=0) # Set reservoir capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
@@ -181,8 +182,9 @@ def obj_rule(model):
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
+    eco_ben = sum(model.WTPEco*model.Aeco[c,t]  for c in model.ncatch for t in model.ntimes) # adds ecosystem benefit
     pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
-    return ag_ben + ind_ben + dom_ben + pow_ben
+    return ag_ben + ind_ben + dom_ben + pow_ben + eco_ben
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
 

@@ -44,7 +44,6 @@ WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
-
 savepath = r'Scenario3_savepath' #adjust this path to write results in specific folder on your system
 
 # Catchment data
@@ -752,3 +751,9 @@ SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
 SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+
+# Flood safety capacity
+
+FScap = {key: value * 0.5 for key, value in AResCap.items()} # Flood safety is 50% of the capacity in reservoirs
+FScap_total = sum(FScap.values()) # Find the total FScap, [MCM]
