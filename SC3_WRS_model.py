@@ -733,6 +733,20 @@ plt.xlabel('time step')
 plt.ylabel('Reservoir release')
 plt.title('Reservoir: ' + str(rselect))
 
+# Reservoir release plot sum of all
+fig, ax = plt.subplots(figsize=[20, 10])
+
+total_release = np.zeros(len(optRelease[list(optRelease.keys())[0]]))
+
+for Aname in optRelease.keys():
+    total_release += optRelease[Aname]
+
+ax.bar(optRelease[list(optRelease.keys())[0]].keys(), total_release)
+ax.set_xlabel('time step')
+ax.set_ylabel('Total reservoir release')
+ax.set_title('Total release from all reservoirs')
+plt.show()
+
 
 # Sum of all three water demands
 
