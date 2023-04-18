@@ -629,6 +629,20 @@ plt.xlabel('time step')
 plt.ylabel('End storage in million m^3')
 plt.title('Reservoir: ' + str(resselect))
 
+#End storage time series for all reservoirs
+fig, ax = plt.subplots(figsize=[20, 10])
+
+total_storage = np.zeros(len(optStor[list(optStor.keys())[0]]))
+
+for Aname in optStor.keys():
+    total_storage += optStor[Aname]
+
+ax.bar(optStor[list(optStor.keys())[0]].keys(), total_storage)
+ax.set_xlabel('time step')
+ax.set_ylabel('Total reservoir end storage in million m^3')
+ax.set_title('Total end storage from all reservoirs')
+plt.show()
+
 # Water Shadow price time series for any catchment
 plt.figure(figsize=[20,10])
 catchselect = 24
