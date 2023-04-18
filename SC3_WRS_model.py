@@ -189,6 +189,7 @@ model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin 
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
+    global ag_ben, ind_ben, dom_ben, pow_ben, pow_gen
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
@@ -196,8 +197,10 @@ def obj_rule(model):
     for i in range(1,len(ntimes)+1):
         if i in monsoon:
             pow_ben = sum(model.WTPPow*model.Resweq2[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+            pow_gen = sum(model.Resweq2[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes) # An idea to find power generation without wtp in MWh
         else:
             pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+            pow_gen = sum(model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes) # An idea to find power generation without wtp in MWh
 
     return ag_ben + ind_ben + dom_ben + pow_ben
 
@@ -297,6 +300,12 @@ results = opt.solve(model)
 
 # Objective value
 print("Total Benefit in optimal solution: ", round(value(model.obj)/(len(model.ntimes)/12)/1000,2), " billion THB per year")
+print("Aggregrated benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Power generation",round(value(pow_gen)), "MWh")
+
 
 #Save optimal decisions
 # Agricultural allocations, saved to path outpath
