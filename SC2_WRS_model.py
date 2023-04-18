@@ -619,6 +619,19 @@ plt.ylabel('Irrigation water demand and irrigation water allocation, million m3'
 plt.title('Catchment: ' + str(catchselect))
 plt.legend(('Demand','Allocation'))
 
+#spill time series for all reservoirs
+fig, ax = plt.subplots(figsize=[20, 10])
+
+total_spill = np.zeros(len(optSpill[list(optSpill.keys())[0]]))
+
+for Aname in optSpill.keys():
+    total_spill += optSpill[Aname]
+
+ax.bar(optSpill[list(optSpill.keys())[0]].keys(), total_spill)
+ax.set_xlabel('time step')
+ax.set_ylabel('Total reservoir spill')
+ax.set_title('Total spill from all reservoirs')
+plt.show()
 
 # End Storage time series
 plt.figure(figsize=[20,10])
