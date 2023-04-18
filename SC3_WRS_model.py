@@ -110,6 +110,7 @@ for ires in AResCap: # catch any missing NaNs
         AResCap[ires]=0
 
 # Create an empty list to store the monsoon months
+FSC = 0.5 # Flood safety coefficient
 monsoon = []
 # Loop through month vector
 for num in range(len(ntimes)):
@@ -117,6 +118,8 @@ for num in range(len(ntimes)):
   if num % 12 == 7 or num % 12 == 8 or num % 12 == 9 or num % 12 == 10:
     monsoon.append(num)
 
+# Water-energy equvalent set to 50% since head is re4duced when capacity is reduced
+Aweq2 = {key: value*FSC for key, value in Aweq.items()}
 
 AResini=dict() # Initial reservoir storage in million m3
 for reskey in AResCap.keys(): # Set to half of maximum storage and catch any missing values
@@ -177,7 +180,8 @@ model.WTPag  = Param(within=NonNegativeReals,initialize = WTPag) # Set WTP for a
 model.WTPInd  = Param(within=NonNegativeReals,initialize = WTPInd) # Set WTP for industrial water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPDom  = Param(within=NonNegativeReals,initialize = WTPDom) # Set WTP for domestic water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPPow = Param(within=NonNegativeReals,initialize = WTPPow) # Set WTP for electical power, assumed constant in time and uniform across catchments here, therefore no index, THB/MWh
-model.Resweq = Param(model.nres, within=NonNegativeReals,initialize = Aweq,default=0) # Set water-energy equivalent for all reservoirs; varies from reservoir to reservoir, therefore 1 index, kWh/m3
+model.Resweq = Param(model.nres, within=NonNegativeReals,initialize = Aweq, default=0) # Set water-energy equivalent for all reservoirs; varies from reservoir to reservoir, therefore 1 index, kWh/m3
+model.Resweq2 = Param(model.nres, within=NonNegativeReals,initialize = Aweq2, default=0) # Set water-energy equvalent which should be used during monsoon
 model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,default=0) # Set reservoir capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResSini = Param(model.nres, within=NonNegativeReals,initialize = AResini, default=0) # Set initial reservoir storage for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
@@ -188,7 +192,13 @@ def obj_rule(model):
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
-    pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+    # Power generation depends on monsoon. In monsoon the power generation is lowered because of less reservoir capacity
+    for i in range(1,len(ntimes)+1):
+        if i in monsoon:
+            pow_ben = sum(model.WTPPow*model.Resweq2[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+        else:
+            pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+
     return ag_ben + ind_ben + dom_ben + pow_ben
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
@@ -252,10 +262,13 @@ model.res = Constraint(model.nres, model.ntimes, rule=res_c)
 # storage in each reservoir should be less than capacity. Active for every time step and reservoir, thus two indices
 def rescap_c(model, nr, nt):
     if nt in monsoon:
-        return model.Send[nr,nt] <= model.ResCap[nr]*0.5 # limits capacity to x% in monsoon season
+        return model.Send[nr,nt] <= model.ResCap[nr]*FSC # limits capacity to flood safety capacity% in monsoon season
     else:
         return model.Send[nr,nt] <= model.ResCap[nr]
 model.rescap = Constraint(model.nres, model.ntimes, rule=rescap_c)
+
+# 
+
 
 # Turbine capacity
 # turbined power should be less than capacity at each time step, each reservoir. . Active for every time step and reservoir, thus two indices
