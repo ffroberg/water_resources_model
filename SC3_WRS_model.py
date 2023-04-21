@@ -42,7 +42,7 @@ basineff = 0.7 # Basin efficiency dimensionless
 WTPag = 0.05*37 # Thai Baht (THB) / m3 or million THB per million m3 1 Euro ~= 37 THB
 WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
-WTPPow = 50*37 # THB /MWh
+WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 savepath = r'Scenario3_savepath' #adjust this path to write results in specific folder on your system
@@ -192,8 +192,8 @@ model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin 
 def obj_rule(model):
     global ag_ben, ind_ben, dom_ben, pow_ben, pow_gen
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
-    ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
-    dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
+    ind_ben = sum(model.WTPInd*model.Aind[c,t] for c in model.ncatch for t in model.ntimes)
+    dom_ben = sum(model.WTPDom*model.Adom[c,t] for c in model.ncatch for t in model.ntimes)
     # Power generation depends on monsoon. In monsoon the power generation is lowered because of less reservoir capacity
     for i in range(1,len(ntimes)+1):
         if i in monsoon:
@@ -360,7 +360,7 @@ optDInd = pd.DataFrame.from_dict(optDInd)
 optAInd.to_excel(outpath)
 optDInd.to_excel(defoutpath)
 
-
+df_sum = pd.concat([optDAg, optDAg, optDInd]).groupby(level=0).sum()
 
 # Domestic allocations, saved to path outpath
 outpath =  savepath + os.sep + r'Dom_optimal_allocations.xlsx'

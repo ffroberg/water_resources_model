@@ -46,7 +46,7 @@ basineff = 0.7 # Basin efficiency dimensionless
 WTPag = 0.05*37 # Thai Baht (THB) / m3 or million THB per million m3 1 Euro ~= 37 THB
 WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
-WTPPow = 50*37 # THB /MWh
+WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 
