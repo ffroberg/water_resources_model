@@ -46,7 +46,7 @@ basineff = 0.7 # Basin efficiency dimensionless
 WTPag = 0.05*37 # Thai Baht (THB) / m3 or million THB per million m3 1 Euro ~= 37 THB
 WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
-WTPPow = 50*37 # THB /MWh
+WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 
@@ -370,7 +370,6 @@ for c in ncatch:
     moptA = dict()
     for t in ntimes:
         moptA[t]=model.Qds[c,t].value
-    plt.plot(ntimes, moptA.values()) 
     optOF[c]=moptA
 optOF = pd.DataFrame.from_dict(optOF)
 optOF.to_excel(outpath)
@@ -805,3 +804,81 @@ SPTCap.to_excel(outpath)
 
 # SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 # SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+
+###############MAR for our model
+
+# Initialize a new dictionary to store average runoff for all years for each catchment
+MAR_optOF = {}
+
+num_years = 29
+
+# Calculate the sum of each year and the average for all years for each catchment
+for catchment in optOF.columns:
+    total_sum = 0
+    for year in range(1, num_years + 1):
+        yearly_sum = 0
+        for month in range(1, 13):
+            index = (year - 1) * 12 + month - 1  # subtract 1 to match DataFrame index
+            if index < len(optOF) and index in optOF.index:
+                yearly_sum += optOF.loc[index, catchment] # Access the catchment value in the row
+        total_sum += yearly_sum
+        
+    average = total_sum / num_years
+    MAR_optOF[catchment] = average
+
+print(MAR_optOF)
+
+total_MAR_optOF = sum(MAR_optOF.values()) / len(MAR_optOF)
+print(total_MAR_optOF)
+
+###################Flow duration curve
+# Combine all catchment data into a single list
+flow_data = []
+for catchment in optOF.columns:
+    flow_data.extend(optOF[catchment].values)
+
+# Sort the data in descending order
+flow_data = np.array(flow_data)
+flow_data_sorted = np.sort(flow_data)[::-1]
+
+# Calculate the exceedance probability for each flow value
+n = len(flow_data_sorted)
+exceedance_probabilities = np.arange(1, n + 1) / (n + 1)
+
+# Create the plot
+plt.plot(exceedance_probabilities * 100, flow_data_sorted)
+plt.xlabel("Exceedance Probability (%)")
+plt.ylabel("Flow")
+plt.title("Flow Duration Curve")
+
+# Display the plot
+plt.show()
+
+########LFR and HFR
+
+# Calculate percentiles for LFR
+LFR_natural = np.percentile(flow_data_sorted, 50)*12
+LFR_good = np.percentile(flow_data_sorted, 25)*12
+LFR_fair = np.percentile(flow_data_sorted, 10)*12
+
+# Calculate HFR
+HFR = 0.2 * total_MAR_optOF
+
+# Calculate EWR
+EWR_natural = LFR_natural + HFR
+EWR_good = LFR_good + HFR
+EWR_fair = LFR_fair + HFR
+
+# Create a pandas DataFrame with the desired values
+table = pd.DataFrame({
+    'LFR': [LFR_natural, LFR_good, LFR_fair],
+    'HFR': [HFR, HFR, HFR],
+    'EWR': [EWR_natural, EWR_good, EWR_fair]
+}, index=['Natural', 'Good', 'Fair'])
+
+print(table)
+
+print('MAR:',total_MAR_optOF)
+
+

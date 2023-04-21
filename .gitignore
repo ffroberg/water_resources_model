@@ -3,6 +3,7 @@ Data
 #Scenario1_savepath
 #Scenario3_savepath
 
+*png
 *.pyc
 AvAgDempl.xlsx
 AvROpl.xlsx
