@@ -9,6 +9,7 @@ from pyomo.environ import *
 #import pyomo.environ as pyo
 from pyomo.opt import SolverFactory
 
+
 datafolder=os.path.relpath(r'Data')
 
 scatch_char = pd.read_excel(os.path.join(datafolder,'Subcatchments_CPY_input.xlsx')) # EXCEL File with subcatchment characteristics

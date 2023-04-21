@@ -8,6 +8,7 @@ from pyomo.environ import *
 #import pyomo.environ as pyo
 from pyomo.opt import SolverFactory
 
+
 datafolder=os.path.relpath(r'Data')
 
 scatch_char = pd.read_excel(os.path.join(datafolder,'Subcatchments_CPY_input.xlsx')) # EXCEL File with subcatchment characteristics
@@ -114,9 +115,9 @@ FSC = 0.5 # Flood safety coefficient
 monsoon = []
 # Loop through month vector
 for num in range(len(ntimes)):
-  # Add each month to the list if it is divisible by 12 (July-October is 7-10)
-  if num % 12 == 7 or num % 12 == 8 or num % 12 == 9 or num % 12 == 10:
-    monsoon.append(num)
+# Add each month to the list if it is divisible by 12 (July-October is 7-10)
+    if num % 12 == 7 or num % 12 == 8 or num % 12 == 9 or num % 12 == 10:
+        monsoon.append(num)
 
 # Water-energy equvalent set to 50% since head is re4duced when capacity is reduced
 Aweq2 = {key: value*FSC for key, value in Aweq.items()}
@@ -300,7 +301,7 @@ results = opt.solve(model)
 
 # Objective value
 print("Total Benefit in optimal solution: ", round(value(model.obj)/(len(model.ntimes)/12)/1000,2), " billion THB per year")
-print("Aggregrated benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Aggregrated benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,5), " billion THB per year" )
 print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
@@ -818,5 +819,5 @@ SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
 
 # Flood safety capacity
 
-FScap = {key: value * 0.5 for key, value in AResCap.items()} # Flood safety is 50% of the capacity in reservoirs
+FScap = {key: value * FSC for key, value in AResCap.items()} # Flood safety is 50% of the capacity in reservoirs
 FScap_total = sum(FScap.values()) # Find the total FScap, [MCM]
