@@ -16,7 +16,7 @@ from SC1_WRS_model import ntimes, ntimestamps
 
 datafolder = os.path.relpath(r'Data')
 
-# Downloade precipitation data
+# Download precipitation data
 prec = pd.read_excel(os.path.join(datafolder,'CRU_PRE_CPY_1991_2020.xlsx'))# EXCEL File with rainfall time series per subcatchment in mm/month
 prec_filtered = prec[prec['Month'].isin(ntimestamps)]
 prec_average = prec_filtered.mean(axis = 1)
@@ -32,16 +32,7 @@ plt.xticks(ntimes, month_names, rotation=45)
 plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 plt.legend()
 plt.xlim(0, 12)
-plt.show()
-
-
-plt.plot(ntimes, total_Spill1, label = 'Baseline')
-plt.plot(ntimes, total_Spill2, label = 'with KST')
-plt.plot(ntimes, total_Spill3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.legend()
-plt.xlim(0,12)
+plt.savefig('release_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
 
 ### Plot precipitation (average over all reservoirs), and total reservoir spill for 3 scenarios
@@ -66,8 +57,11 @@ plt.axvspan(7+12*2, 10+12*2, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12*3, 10+12*3, facecolor='blue', alpha=0.2)
 ax1.legend(loc='upper left', bbox_to_anchor=(0.0, 0.92))
 ax2.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0))
-plt.xticks(ntimes, month_names, rotation=45)
+ax1.set_xticks(ntimes)
+ax1.set_xticklabels(month_names, rotation=45, fontsize  = 8)
 plt.xlim(0,36)
+plt.savefig('spill_plot.png', bbox_inches='tight',pad_inches = 0.1, dpi=300)
+plt.subplots_adjust(bottom=0.15)
 plt.show()
 
 # Deficit for all 
@@ -89,6 +83,7 @@ plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
 plt.legend()
 plt.xlim(0,36)
+plt.savefig('deficit_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
 
 plt.plot(ntimes, optOF1.mean(axis = 1), label = 'Baseline')
@@ -100,6 +95,7 @@ plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 #plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
 plt.legend()
 plt.xlim(0,12)
+plt.savefig('runoff_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
 
 
