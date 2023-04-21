@@ -370,7 +370,6 @@ for c in ncatch:
     moptA = dict()
     for t in ntimes:
         moptA[t]=model.Qds[c,t].value
-    plt.plot(ntimes, moptA.values()) 
     optOF[c]=moptA
 optOF = pd.DataFrame.from_dict(optOF)
 optOF.to_excel(outpath)
