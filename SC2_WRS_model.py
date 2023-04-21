@@ -789,3 +789,52 @@ SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
 SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+
+#MAR calculation
+
+# Initialize a new dictionary to store average runoff for all years for each catchment
+MAR = {}
+
+# Calculate the sum of each year and the average for all years for each catchment
+for catchment, timesteps in ROpl.items():
+    total_sum = 0
+    num_years = 29
+    for year in range(1, num_years + 1):
+        yearly_sum = 0
+        for month in range(1, 13):
+            index = (year - 1) * 12 + month
+            if index in timesteps:
+                yearly_sum += timesteps[index]
+        total_sum += yearly_sum
+        
+    average = total_sum / num_years
+    MAR[catchment] = average #million m3 per year
+
+print(MAR)
+
+#MAR (of each catchment) for our model
+# Initialize a new dictionary to store average runoff for all years for each catchment
+MAR_optOF = {}
+
+num_years = 29
+
+# Calculate the sum of each year and the average for all years for each catchment
+for catchment in optOF.columns:
+    total_sum = 0
+    for year in range(1, num_years + 1):
+        yearly_sum = 0
+        for month in range(1, 13):
+            index = (year - 1) * 12 + month - 1  # subtract 1 to match DataFrame index
+            if index < len(optOF) and index in optOF.index:
+                yearly_sum += optOF.loc[index, catchment] # Access the catchment value in the row
+        total_sum += yearly_sum
+        
+    average = total_sum / num_years
+    MAR_optOF[catchment] = average
+
+print(MAR_optOF)
+
+
+
+
