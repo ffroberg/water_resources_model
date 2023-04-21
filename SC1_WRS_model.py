@@ -273,8 +273,16 @@ results = opt.solve(model)
 #----------------------------------------------------------------------------------------------
 # You can of course adjust all file names as you may wish
 
+
 # Objective value
 print("Total Benefit in optimal solution: ", round(value(model.obj)/(len(model.ntimes)/12)/1000,2), " billion THB per year")
+print("Aggregrated benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Power generation",round(value(pow_gen)), "MWh")
+
+
 
 #Save optimal decisions
 # Agricultural allocations, saved to path outpath
@@ -782,6 +790,3 @@ SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
 SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
-
-print('Emma er klog')
-
