@@ -179,6 +179,7 @@ model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin 
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
+    global ag_ben, ind_ben, dom_ben, pow_ben
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
@@ -280,7 +281,7 @@ print("Aggregrated benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,2),
 print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
-print("Power generation",round(value(pow_gen)), "MWh")
+
 
 
 
