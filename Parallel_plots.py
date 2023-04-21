@@ -14,10 +14,10 @@ import os
 # hej
 # Import data
 datafolder=os.path.relpath(r'Data')
-MCA = pd.read_excel(os.path.join(datafolder, 'Multivariate_table_short.xlsx'))
+MCA = pd.read_excel('Multivariate_table_short.xlsx')
 MCA
 
-cols = ['Flood safety [MCM]', 'Demand meet [%]', 'Total benefit [million THB/year]', 'Environmental impact']
+cols = ['Flood safety [MCM]', 'Demand met [%]', 'Total benefit [million THB/year]', 'Resettlement population', 'Cost [million THB]', 'Environmental impact']
 x = [i for i, _ in enumerate(cols)]
 
 # Create (X-1) sublots along x axis
@@ -53,6 +53,8 @@ def set_ticks_for_axis(dim, ax, ticks):
     ax.yaxis.set_ticks(ticks)
     ax.set_yticklabels(tick_labels)
 
+
+
 for dim, ax in enumerate(axes):
     ax.xaxis.set_major_locator(ticker.FixedLocator([dim]))
     set_ticks_for_axis(dim, ax,ticks=6)
@@ -65,6 +67,7 @@ ax.xaxis.set_major_locator(ticker.FixedLocator([x[-2], x[-1]]))
 set_ticks_for_axis(dim, ax, ticks=6)
 ax.set_xticklabels([cols[-2], cols[-1]])
 ax.legend(handles, labels, loc='center right')
+
 
 # Remove space between subplots
 plt.subplots_adjust(wspace=0)
