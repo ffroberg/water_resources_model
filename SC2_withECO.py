@@ -43,8 +43,7 @@ WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 50*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
-# add WTP for ecosystem
-WTPEco = 0.3*37 # THB / m3 or million THB per million m3
+
 
 savepath = r'test_savepath' #adust this path to write results in specific folder on your system
 
@@ -76,7 +75,6 @@ AgDempl = dict() # Create empty dictionary for agricultural demand as nested dic
 RO = dict() # Create empty dictionary for runoff as dictionary with double index n - for use in pyomo
 ROpl = dict() # Create empty dictionary for runoff as nested dictionary - for plotting
 ROindividual = dict ()
-# add ecosystem demand
 for c in ncatch:
     IndDem[c] = scatch_people[c]*per_cap_ind_demand/12/1E6 # industrial demand million m3 per month = number of people times per capita demand
     DomDem[c] = scatch_people[c]*per_cap_dom_demand/12/1E6 # domestic demand million m3 per month = number of people times per capita demand
@@ -131,6 +129,35 @@ for c in scatch_reservoir: # Replace reservoir name with reservoir ID in scatch_
 scatch_reservoir2 = {y:x for x,y in scatch_reservoir.items()} # invert the dictionary - can be used to look up catchment belonging to each reservoir
 del scatch_reservoir2[-1] # delete key -1
 
+# Environmental flow requirements
+# Mean annual runoff
+MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
+
+# Desired ecosystem status
+# Change: poor = 0, fair = 10, good = 25, natural = 50   
+eco_stat = 50
+
+# Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
+ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
+exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
+LFR = {c: np.percentile(list(ROpl[c].values()),90) for c in ncatch}
+HFR = {}
+EFR = {}
+
+for c in ncatch:
+    HFR_90 = np.percentile(list(ROpl[c].values()),90)
+    if HFR_90 <= 0.1*MAR[c]:
+        HFR[c] = 0.2*MAR[c]
+    elif HFR_90 <= 0.2*MAR[c]:
+        HFR[c] = 0.15*MAR[c]
+    elif HFR_90 <= 0.3*MAR[c]:
+        HFR[c] = 0.07*MAR[c]
+    else:
+        HFR[c] = 0
+    EFR[c] = LFR[c]+HFR[c]
+print(EFR)
+
+
 #######
 # model and opt here
 #######
@@ -152,7 +179,7 @@ model.Qds  = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # note dou
 model.Rel   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One release per month and per reservoir. turbined power, MCM
 model.Spill   = Var(model.nres, model.ntimes, within=NonNegativeReals) #  note double index. One spill per month and per reservoir. Water flowing past the turbines, MCM
 model.Send   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One end storage per month and per reservoir. MCM
-model.Aeco = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # Ecosystem allocation per time step and per subcatchment, MCM
+model.AEFR = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # EFR allocation
 
 # Declare parameters
 model.endtime = Param(initialize = ntimes[-1]) # find end time step of the model
@@ -170,21 +197,20 @@ model.WTPag  = Param(within=NonNegativeReals,initialize = WTPag) # Set WTP for a
 model.WTPInd  = Param(within=NonNegativeReals,initialize = WTPInd) # Set WTP for industrial water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPDom  = Param(within=NonNegativeReals,initialize = WTPDom) # Set WTP for domestic water allocation; assumed constant in time and uniform across catchments here, therefore no index, THB/m3
 model.WTPPow = Param(within=NonNegativeReals,initialize = WTPPow) # Set WTP for electical power, assumed constant in time and uniform across catchments here, therefore no index, THB/MWh
-model.WTPEco = Param(within=NonNegativeReals,initialize = WTPEco)
 model.Resweq = Param(model.nres, within=NonNegativeReals,initialize = Aweq,default=0) # Set water-energy equivalent for all reservoirs; varies from reservoir to reservoir, therefore 1 index, kWh/m3
 model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,default=0) # Set reservoir capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResSini = Param(model.nres, within=NonNegativeReals,initialize = AResini, default=0) # Set initial reservoir storage for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin diversion in percent of flow downstream of upper Chao Phraya; Just one number, therefore no index, dimensionless, fraction
+model.EFRDem  = Param(model.ncatch,within=NonNegativeReals,initialize = EFR)
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
-    eco_ben = sum(model.WTPEco*model.Aeco[c,t]  for c in model.ncatch for t in model.ntimes) # adds ecosystem benefit
     pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
-    return ag_ben + ind_ben + dom_ben + pow_ben + eco_ben
+    return ag_ben + ind_ben + dom_ben + pow_ben
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
 
@@ -202,6 +228,11 @@ model.wd_ind = Constraint(model.ncatch, model.ntimes, rule=wd_ind_c)
 def wd_dom_c(model, nc, nt):
     return model.Adom[nc,nt] <= model.DomDem[nc]
 model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
+
+# Environmental flow requirement constraint
+def wd_EFR_c(model, nc, nt):
+    return model.AEFR[nc,nt] >= model.EFRDem[nc]
+model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
 # Catchment water balance per catchment.. Active for every time step and catchment, thus two indices
