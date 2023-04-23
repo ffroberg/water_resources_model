@@ -140,7 +140,7 @@ eco_stat = 50
 # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
 ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
 exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
-LFR = {c: np.percentile(list(ROpl[c].values()),90) for c in ncatch}
+LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
 HFR = {}
 EFR = {}
 
@@ -308,7 +308,33 @@ results = opt.solve(model)
 # Objective value
 print("Total Benefit in optimal solution: ", round(value(model.obj)/(len(model.ntimes)/12)/1000,2), " billion THB per year")
 
+
 #Save optimal decisions
+
+# EFR allocations, saved to path outpath
+outpath =  savepath + os.sep + r'EFR_optimal_allocations.xlsx'
+defoutpath =  savepath + os.sep + r'EFR_deficits_optimal.xlsx'
+optAEFR = dict()
+optDEFR = dict()
+for c in ncatch:
+    moptA = dict()
+    moptD = dict()
+    for t in ntimes:
+        moptA[t]=model.AEFR[c,t].value
+        moptD[t]=model.EFRDem[c]-model.AEFR[c,t].value
+    optAEFR[c]=moptA
+    optDEFR[c]=moptD
+
+# Average optimal Allocation
+AvoptAEFR = dict()
+for cindex in optAEFR.keys():
+    AvoptAEFR[cindex] = np.mean(list(optAEFR[cindex].values()))
+
+optAEFR = pd.DataFrame.from_dict(optAEFR)
+optDEFR = pd.DataFrame.from_dict(optDEFR)
+optAEFR.to_excel(outpath)
+optDEFR.to_excel(defoutpath)  
+
 # Agricultural allocations, saved to path outpath
 outpath =  savepath + os.sep + r'Ag_optimal_allocations.xlsx'
 defoutpath =  savepath + os.sep + r'Ag_deficits_optimal.xlsx'
