@@ -41,7 +41,7 @@ basineff = 0.7 # Basin efficiency dimensionless
 WTPag = 0.05*37 # Thai Baht (THB) / m3 or million THB per million m3 1 Euro ~= 37 THB
 WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
-WTPPow = 50*37 # THB /MWh
+WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 
@@ -135,7 +135,7 @@ MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
 
 # Desired ecosystem status
 # Change: poor = 0, fair = 10, good = 25, natural = 50   
-eco_stat = 10
+eco_stat = 0.50
 
 # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
 ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
@@ -206,6 +206,7 @@ model.EFRDem  = Param(model.ncatch,within=NonNegativeReals,initialize = EFR)
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
+    global ag_ben, ind_ben, dom_ben, pow_ben
     ag_ben = sum(model.WTPag*model.Aag[c,t] for c in model.ncatch for t in model.ntimes)
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
@@ -311,7 +312,10 @@ results = opt.solve(model)
 
 # Objective value
 print("Total Benefit in optimal solution: ", round(value(model.obj)/(len(model.ntimes)/12)/1000,2), " billion THB per year")
-
+print("Agricultural benefit", round(value(ag_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
+print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 
 #Save optimal decisions
 
