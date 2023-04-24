@@ -99,7 +99,7 @@ plt.savefig('runoff_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
 
 
-# Deficit for all 
+# Benefit for all
 from SC1_WRS_model import ag_ben as ag_ben1, ind_ben as ind_ben1, dom_ben as dom_ben1, pow_ben as pow_ben1
 from SC2_WRS_model import ag_ben as ag_ben2, ind_ben as ind_ben2, dom_ben as dom_ben2, pow_ben as pow_ben2
 from SC3_WRS_model import ag_ben as ag_ben3, ind_ben as ind_ben3, dom_ben as dom_ben3, pow_ben as pow_ben3
@@ -131,4 +131,44 @@ plt.ylabel('billion THB per year')
 
 plt.legend()
 plt.savefig('benefit_barplot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.show()
+
+
+# Agriculture allocation
+from SC1_WRS_model import optAAg as optAAg1
+from SC2_WRS_model import optAAg as optAAg2
+from SC3_WRS_model import optAAg as optAAg3
+
+optAAg1 = optAAg1.mean(axis = 1)
+optAAg2 = optAAg2.mean(axis = 1)
+optAAg3 = optAAg3.mean(axis = 1)
+
+
+plt.plot(ntimes, optAAg1, label = 'Baseline')
+plt.plot(ntimes, optAAg2, label = 'with KST')
+plt.plot(ntimes, optAAg3, label = 'with KST and FS')
+plt.xticks(ntimes, month_names, rotation=45)
+plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+plt.legend()
+plt.xlim(0,36)
+plt.savefig('Agriculture_Allocation.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.show()
+
+# Power generation
+from SC1_WRS_model import AVpow_gen as AVpow_gen1, SUMpow_gen as SUMpow_gen1
+from SC2_WRS_model import AVpow_gen as AVpow_gen2, SUMpow_gen as SUMpow_gen2
+from SC3_WRS_model import AVpow_gen as AVpow_gen3, SUMpow_gen as SUMpow_gen3
+
+plt.plot(ntimes, SUMpow_gen1, label = 'Baseline')
+plt.plot(ntimes, SUMpow_gen2, label = 'with KST')
+plt.plot(ntimes, SUMpow_gen3, label = 'with KST and FS')
+plt.xticks(ntimes, month_names, rotation=45)
+plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+plt.legend()
+plt.xlim(0,36)
+plt.savefig('Power_Generation_sum.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()

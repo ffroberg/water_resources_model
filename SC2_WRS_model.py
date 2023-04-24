@@ -801,8 +801,14 @@ SPTCap.to_excel(outpath)
 # SumDem_pandas = pd.DataFrame.from_dict(SumDem, orient = 'index',columns=['Demand [m3]'])
 # SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
-SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
-SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+# SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
+# SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+################ POWER generated, to use in comparison plot file
+
+pow_gen = Aweq * optRelease
+AVpow_gen = pow_gen.mean(axis = 1)
+SUMpow_gen = pow_gen.sum(axis = 1)
 
 
 #######MAR calculation of RO

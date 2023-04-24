@@ -837,6 +837,19 @@ SPTCap.to_excel(outpath)
 # FScap = {key: value * FSC for key, value in AResCap.items()} # Flood safety is 50% of the capacity in reservoirs
 # FScap_total = sum(FScap.values()) # Find the total FScap, [MCM]
 
+################ POWER generated, to use in comparison plot file
+
+
+for i in range(1,len(ntimes)+1):
+    if i in monsoon:
+        pow_gen = Aweq2 * optRelease
+    else:
+        pow_gen = Aweq * optRelease
+        
+
+AVpow_gen = pow_gen.mean(axis = 1)
+SUMpow_gen = pow_gen.sum(axis = 1)
+
 
 ###############MAR for our model
 

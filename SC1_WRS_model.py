@@ -186,6 +186,7 @@ def obj_rule(model):
     ind_ben = sum(model.WTPInd*model.Aind[c,t]  for c in model.ncatch for t in model.ntimes)
     dom_ben = sum(model.WTPDom*model.Adom[c,t]  for c in model.ncatch for t in model.ntimes)
     pow_ben = sum(model.WTPPow*model.Resweq[r]*model.Rel[r,t]/1000 for r in model.nres for t in model.ntimes)
+
     return ag_ben + ind_ben + dom_ben + pow_ben
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
@@ -805,6 +806,13 @@ SPTCap.to_excel(outpath)
 # SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 # SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
 
+
+################ POWER generated, to use in comparison plot file
+
+
+pow_gen = Aweq * optRelease
+AVpow_gen = pow_gen.mean(axis = 1)
+SUMpow_gen = pow_gen.sum(axis = 1)
 
 ###############MAR for our model
 
