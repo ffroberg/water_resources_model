@@ -135,7 +135,7 @@ MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
 
 # Desired ecosystem status
 # Change: poor = 0, fair = 10, good = 25, natural = 50   
-eco_stat = 50
+eco_stat = 10
 
 # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
 ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
@@ -179,7 +179,7 @@ model.Qds  = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # note dou
 model.Rel   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One release per month and per reservoir. turbined power, MCM
 model.Spill   = Var(model.nres, model.ntimes, within=NonNegativeReals) #  note double index. One spill per month and per reservoir. Water flowing past the turbines, MCM
 model.Send   = Var(model.nres, model.ntimes, within=NonNegativeReals) # note double index. One end storage per month and per reservoir. MCM
-model.AEFR = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # EFR allocation
+#model.AEFR = Var(model.ncatch, model.ntimes, within=NonNegativeReals) # EFR allocation
 
 # Declare parameters
 model.endtime = Param(initialize = ntimes[-1]) # find end time step of the model
@@ -230,8 +230,12 @@ def wd_dom_c(model, nc, nt):
 model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 
 # Environmental flow requirement constraint
+# def wd_EFR_c(model, nc, nt):
+#     return model.AEFR[nc,nt] >= model.EFRDem[nc]
+# model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
+
 def wd_EFR_c(model, nc, nt):
-    return model.AEFR[nc,nt] >= model.EFRDem[nc]
+    return model.Qds[nc,nt] >= model.EFRDem[nc]
 model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
