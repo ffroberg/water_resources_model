@@ -142,7 +142,19 @@ del scatch_reservoir2[-1] # delete key -1
 # exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
 # LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
 # HFR = {}
-# EFR = {}
+EFR = {10: 5.9622927513659825,
+ 7: 14.617603049440431,
+ 15: 105.69917884472947,
+ 14: 80.5799339501222,
+ 20: 8.775526753214725,
+ 24: 213.85938805404504,
+ 28: 135.26946525526006,
+ 33: 156.1032098400477,
+ 1: 48.82319498596385,
+ 12: 28.650793493573456,
+ 5: 4.159047023776799,
+ 25: 21.407829315289153,
+ 9: 20.088436993043594}
 
 # for c in ncatch:
 #     HFR_90 = np.percentile(list(ROpl[c].values()),90)
