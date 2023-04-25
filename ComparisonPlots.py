@@ -77,7 +77,7 @@ deficit_sum3 = (optDInd3.mean(axis=1) + optDAg3.mean(axis = 1) + optDDom3.mean(a
 plt.plot(ntimes, deficit_sum1, label = 'Baseline')
 plt.plot(ntimes, deficit_sum2, label = 'with KST')
 plt.plot(ntimes, deficit_sum3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45)
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 8)
 plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
@@ -89,7 +89,7 @@ plt.show()
 plt.plot(ntimes, optOF1.mean(axis = 1), label = 'Baseline')
 plt.plot(ntimes, optOF2.mean(axis = 1), label = 'with KST')
 plt.plot(ntimes, optOF3.mean(axis = 1), label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45)
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 8)
 plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 #plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
 #plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
@@ -103,7 +103,6 @@ plt.show()
 from SC1_WRS_model import ag_ben as ag_ben1, ind_ben as ind_ben1, dom_ben as dom_ben1, pow_ben as pow_ben1
 from SC2_WRS_model import ag_ben as ag_ben2, ind_ben as ind_ben2, dom_ben as dom_ben2, pow_ben as pow_ben2
 from SC3_WRS_model import ag_ben as ag_ben3, ind_ben as ind_ben3, dom_ben as dom_ben3, pow_ben as pow_ben3
-
 
 scenario1 = np.array([value(ag_ben1), value(ind_ben1), value(dom_ben1), value(pow_ben1)])
 scenario2 = np.array([value(ag_ben2), value(ind_ben2), value(dom_ben2), value(pow_ben2)])
@@ -147,11 +146,11 @@ optAAg3 = optAAg3.mean(axis = 1)
 plt.plot(ntimes, optAAg1, label = 'Baseline')
 plt.plot(ntimes, optAAg2, label = 'with KST')
 plt.plot(ntimes, optAAg3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45)
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 8)
 plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.legend()
+plt.legend(loc = 'upper right')
 plt.xlim(0,36)
 plt.savefig('Agriculture_Allocation.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
@@ -164,11 +163,85 @@ from SC3_WRS_model import AVpow_gen as AVpow_gen3, SUMpow_gen as SUMpow_gen3
 plt.plot(ntimes, SUMpow_gen1, label = 'Baseline')
 plt.plot(ntimes, SUMpow_gen2, label = 'with KST')
 plt.plot(ntimes, SUMpow_gen3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45)
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 8)
 plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
 plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.legend()
+plt.legend(loc='upper right')
 plt.xlim(0,36)
 plt.savefig('Power_Generation_sum.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
+
+plt.plot(ntimes, AVpow_gen1, label = 'Baseline')
+plt.plot(ntimes, AVpow_gen2, label = 'with KST')
+plt.plot(ntimes, AVpow_gen3, label = 'with KST and FS')
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 8)
+plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
+plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+plt.legend(loc='upper right')
+plt.xlim(0,36)
+plt.savefig('Power_Generation_AV.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.show()
+
+
+
+
+fig, axes = plt.subplots(nrows=len(prec_filtered.columns), ncols=1, figsize = (8,20), constrained_layout=True)
+for i, key in enumerate(prec_filtered.columns):
+    ax = axes[i]
+    ax.plot(prec_filtered[key], label = key)
+    ax.legend(loc = 'upper right', fontsize = 10)
+
+    
+fig.text(0.04, 0.5, '[MCM]', ha='center', va='center', rotation='vertical', fontsize = 10)
+plt.xlabel('Time [month]')
+plt.show()
+
+
+
+
+
+# prec_filtered.set_index('Month', inplace=True)
+# month_names = [date.strftime("%b") for date in grun.index]
+# year_names = [date.strftime("%y") for date in grun.index]
+# monsoon_names = ['Jul', 'Aug', 'Sep', 'Oct']
+
+# # Create a figure with one column and 13 rows
+# fig, axes = plt.subplots(nrows=13, ncols=1, figsize=(8, 20), constrained_layout = True)
+# # Iterate over the number columns and plot each one as a subplot
+# for i, col in enumerate(prec_filtered.columns):
+#     ax = prec_filtered[col].plot(ax=axes[i], kind='bar', fontsize = 8)
+#     ax.set_ylabel('MCM', fontsize = 8)
+#     ax.set_xlabel('')
+
+#     #xticks = ax.get_xticks()[::12]
+#     #xticklabels = year_names[::12]
+#     #ax.set_xticks(xticks)
+#     ax.set_xticklabels(xticklabels, rotation=45, ha='right', fontsize = 8)
+#     ax.legend(loc = 'upper right', fontsize = 10)
+    
+
+# # Add a common x-axis label and title
+# fig.text(0.5, 0.08, 'Month', ha='center', fontsize = 10)
+# fig.suptitle('Values by Month', fontsize=10)
+# # Show the plot
+# plt.show()
+
+
+
+
+###### FROM SC1
+# plt.plot(ntimes, optOF[7], label = 'Outflow')
+# plt.plot(ntimes, optAAg[7], label = 'Ag. allocation')
+# plt.plot(ntimes, optAInd[7], label = 'Ind. allocation')
+# plt.plot(ntimes, optADom[7], label = 'Dom. allocation')
+# plt.plot(ntimes, optSpill[1], label = 'spill')
+# plt.plot(ntimes, ROpl[7].values(), label = 'Runoff')
+# plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
+# plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
+# plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+# plt.legend()
+# plt.xlim(0,36)
+# #plt.savefig('Agriculture_Allocation.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+# plt.show()
