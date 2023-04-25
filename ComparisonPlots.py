@@ -35,6 +35,7 @@ grun_average = grun_filtered.mean(axis = 1)
 
 ### Remaking ntimes to a list of all the month names
 month_names = [date.strftime("%b") for date in ntimestamps]
+years = 4
 
 # Plot data and set x-tick labels to January of each year
 plt.figure(figsize=(15,5))
@@ -42,12 +43,14 @@ plt.plot(ntimes, total_release1, label='1')
 plt.plot(ntimes, total_release2, label='2')
 plt.plot(ntimes, total_release3, label='3')
 plt.xticks(ntimes, month_names, rotation=55)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend()
-plt.xlim(0, 48)
+plt.xlim(0, 12*years)
 plt.ylabel('Total release [MCM]')
-plt.savefig('release_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
+
+
 
 ### Plot precipitation (average over all reservoirs), and total reservoir spill for 3 scenarios
 fig, ax1 = plt.subplots(figsize =(15,5))
@@ -65,16 +68,13 @@ ax2.plot(ntimes, prec_average, color='darkblue', linestyle = '--', label = 'Aver
 ax2.set_ylabel('Average Precipitation [mm/month]')
 ax2.tick_params(axis='y')
 # add a blue shaded region from July to October
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12*2, 10+12*2, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12*3, 10+12*3, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 ax1.legend(loc='upper left', bbox_to_anchor=(0.0, 0.9))
 ax2.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0))
 ax1.set_xticks(ntimes)
 ax1.set_xticklabels(month_names, rotation=45, fontsize  = 10)
-plt.xlim(0,48)
-plt.savefig('spill_plot.png', bbox_inches='tight',pad_inches = 0.1, dpi=300)
+plt.xlim(0,years*12)
 plt.subplots_adjust(bottom=0.15)
 plt.show()
 
@@ -93,13 +93,11 @@ plt.plot(ntimes, deficit_sum1, label = 'Baseline')
 plt.plot(ntimes, deficit_sum2, label = 'with KST')
 plt.plot(ntimes, deficit_sum3, label = 'with KST and FS')
 plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend()
 plt.ylabel('Mean deficit [MCM]')
-plt.xlim(0,48)
-plt.savefig('deficit_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.xlim(0,12*years)
 plt.show()
 
 plt.figure(figsize=(15,5))
@@ -107,14 +105,11 @@ plt.plot(ntimes, optOF1.mean(axis = 1), label = 'Baseline')
 plt.plot(ntimes, optOF2.mean(axis = 1), label = 'with KST')
 plt.plot(ntimes, optOF3.mean(axis = 1), label = 'with KST and FS')
 plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12+12, 10+12+12+12, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend()
 plt.ylabel('Outflow [MCM]')
-plt.xlim(0,48)
-plt.savefig('Outflow_plot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.xlim(0,years*12)
 plt.show()
 
 
@@ -142,7 +137,6 @@ plt.xticks([r + barWidth for r in range(len(scenario1))], ['Agriculture', 'Indus
 plt.ylabel('billion THB per year')
 #plt.title('Values for different variables in three different scenarios')
 plt.legend()
-plt.savefig('benefit_barplot.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
 plt.show()
 
 
@@ -160,14 +154,11 @@ plt.plot(ntimes, optAAg1, label = 'Baseline')
 plt.plot(ntimes, optAAg2, label = 'with KST')
 plt.plot(ntimes, optAAg3, label = 'with KST and FS')
 plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12+12, 10+12+12+12, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend(loc = 'upper right')
 plt.ylabel('Mean agriculture allocation [MCM]')
-plt.xlim(0,48)
-plt.savefig('Agriculture_Allocation.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.xlim(0,years*12)
 plt.show()
 
 # Power generation
@@ -180,14 +171,11 @@ plt.plot(ntimes, SUMpow_gen1, label = 'Baseline')
 plt.plot(ntimes, SUMpow_gen2, label = 'with KST')
 plt.plot(ntimes, SUMpow_gen3, label = 'with KST and FS')
 plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12+12, 10+12+12+12, facecolor='blue', alpha=0.2)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend(loc='upper right')
 plt.ylabel('Total power generation [kWh]')
-plt.xlim(0,48)
-plt.savefig('Power_Generation_sum.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.xlim(0,years*12)
 plt.show()
 
 plt.figure(figsize=(15,5))
@@ -195,16 +183,11 @@ plt.plot(ntimes, AVpow_gen1, label = 'Baseline')
 plt.plot(ntimes, AVpow_gen2, label = 'with KST')
 plt.plot(ntimes, AVpow_gen3, label = 'with KST and FS')
 plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-
-plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
-plt.axvspan(7+12+12+12, 10+12+12+12, facecolor='blue', alpha=0.2)
-
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 plt.legend(loc='upper right')
 plt.ylabel('Mean power generation [kWh]')
-plt.xlim(0,48)
-plt.savefig('Power_Generation_AV.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+plt.xlim(0,years*12)
 plt.show()
 
 
@@ -245,35 +228,44 @@ ax2.legend(loc = 'upper right', bbox_to_anchor = (1.0, 0.80))
 plt.xlabel('time [Month]')
 plt.show()
 
+# Shadow price water capacity
+from SC1_WRS_model import SPResCap as SPResCap1, SPCWB as SPCWB1
+from SC2_WRS_model import SPResCap as SPResCap2, SPCWB as SPCWB2
+from SC3_WRS_model import SPResCap as SPResCap3, SPCWB as SPCWB3
+
+avSPResCap1 = SPResCap1.mean(axis = 1)
+avSPResCap2 = SPResCap2.mean(axis = 1)
+avSPResCap3 = SPResCap3.mean(axis = 1)
+
+avSPCWB1 = SPCWB1.mean(axis = 1)
+avSPCWB2 = SPCWB2.mean(axis = 1)
+avSPCWB3 = SPCWB3.mean(axis = 1)
+
+plt.figure(figsize=(15,5))
+plt.plot(ntimes, avSPResCap1, label ='Baseline')
+plt.plot(ntimes, avSPResCap2, label ='KST')
+plt.plot(ntimes, avSPResCap3, label ='KST + FS')
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
+plt.legend(loc='upper right')
+plt.ylabel('Reservoir capacity shadow price THB per m3')
+plt.xlim(0,years*12)
+plt.show()
+
+plt.figure(figsize=(15,5))
+plt.plot(ntimes, avSPCWB1, label ='Baseline')
+plt.plot(ntimes, avSPCWB2, label ='KST')
+plt.plot(ntimes, avSPCWB3, label ='KST + FS')
+plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
+for i in range(years):
+    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
+plt.legend(loc='upper right')
+plt.ylabel('Water shadow price THB per m3')
+plt.xlim(0,years*12)
+plt.show()
 
 
-
-
-# prec_filtered.set_index('Month', inplace=True)
-# month_names = [date.strftime("%b") for date in grun.index]
-# year_names = [date.strftime("%y") for date in grun.index]
-# monsoon_names = ['Jul', 'Aug', 'Sep', 'Oct']
-
-# # Create a figure with one column and 13 rows
-# fig, axes = plt.subplots(nrows=13, ncols=1, figsize=(8, 20), constrained_layout = True)
-# # Iterate over the number columns and plot each one as a subplot
-# for i, col in enumerate(prec_filtered.columns):
-#     ax = prec_filtered[col].plot(ax=axes[i], kind='bar', fontsize = 8)
-#     ax.set_ylabel('MCM', fontsize = 8)
-#     ax.set_xlabel('')
-
-#     #xticks = ax.get_xticks()[::12]
-#     #xticklabels = year_names[::12]
-#     #ax.set_xticks(xticks)
-#     ax.set_xticklabels(xticklabels, rotation=45, ha='right', fontsize = 8)
-#     ax.legend(loc = 'upper right', fontsize = 10)
-    
-
-# # Add a common x-axis label and title
-# fig.text(0.5, 0.08, 'Month', ha='center', fontsize = 10)
-# fig.suptitle('Values by Month', fontsize=10)
-# # Show the plot
-# plt.show()
 
 
 
