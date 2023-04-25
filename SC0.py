@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr 25 10:40:05 2023
+
+@author: magnu
+"""
+
 import os
 import datetime as dt
 import numpy as np
@@ -15,7 +22,7 @@ prec = pd.read_excel(os.path.join(datafolder,'CRU_PRE_CPY_1991_2020.xlsx'))# EXC
 pet = pd.read_excel(os.path.join(datafolder,'CRU_PET_CPY_1991_2020.xlsx'))
 grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'))
 connectivity = pd.read_excel(os.path.join(datafolder, 'CPY_catch_connectivity.xlsx'))
-assets_char = pd.read_excel(os.path.join(datafolder, 'Assets_CPY_input.xlsx'))
+assets_char = pd.read_excel(os.path.join(datafolder, 'Assets_CPY_input_zero.xlsx'))
 
 def Kc(tstamp): # Monthly crop coefficient values - modify this if you want time variable Kc
     return {
@@ -76,8 +83,8 @@ RO = dict() # Create empty dictionary for runoff as dictionary with double index
 ROpl = dict() # Create empty dictionary for runoff as nested dictionary - for plotting
 ROindividual = dict ()
 for c in ncatch:
-    IndDem[c] = scatch_people[c]*per_cap_ind_demand/12/1E6 # industrial demand million m3 per month = number of people times per capita demand
-    DomDem[c] = scatch_people[c]*per_cap_dom_demand/12/1E6 # domestic demand million m3 per month = number of people times per capita demand
+    IndDem[c] = 0*scatch_people[c]*per_cap_ind_demand/12/1E6 # industrial demand million m3 per month = number of people times per capita demand
+    DomDem[c] = 0*scatch_people[c]*per_cap_dom_demand/12/1E6 # domestic demand million m3 per month = number of people times per capita demand
     AgDempl[c]=dict() # create one empty sub-dictionary per catchment
     ROpl[c]=dict() # create one empty sub-dictionary per catchment
     ROindividual[c] = dict()
@@ -86,9 +93,9 @@ for c in ncatch:
         irrigation_rate = (Kc(tstamp)*pet_rate[c][tstamp]*365/12 - prec_rate[c][tstamp])*(1+saltLR)/basineff #Calculate the irrigation rate
         if irrigation_rate < 0: # if rainfall exceeds crop water demand
             irrigation_rate = 0 # set irrigation rate to zero
-        AgDem[(c,t)] = irrigation_rate/1000*scatch_airr[c]/100 # ag. demand dependent on time in million m3 per month
+        AgDem[(c,t)] = 0*irrigation_rate/1000*scatch_airr[c]/100 # ag. demand dependent on time in million m3 per month
         RO[(c,t)] = runoff_rate[c][tstamp]*365/12/1000*scatch_areas[c] # Runoff generated in each catchment in million m3 per month
-        AgDempl[c][t] = irrigation_rate/1000*scatch_airr[c]/100 # same values stored in nested dictionary
+        AgDempl[c][t] = 0*irrigation_rate/1000*scatch_airr[c]/100 # same values stored in nested dictionary
         ROpl[c][t] = runoff_rate[c][tstamp]*365/12/1000*scatch_areas[c] # same values stored in nested dictionary
         ROindividual[c][t] = runoff_rate[c][tstamp]*365/12/1000 # m/month
 
@@ -137,26 +144,30 @@ del scatch_reservoir2[-1] # delete key -1
 # Change: poor = 0, fair = 10, good = 25, natural = 50   
 #eco_stat = 0.50
 
-# Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
-# ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
+# # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
+# RO_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
 # exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
 # LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
 # HFR = {}
 # EFR = {}
 
 # for c in ncatch:
-#     HFR_90 = np.percentile(list(ROpl[c].values()),90)
-#     if HFR_90 <= 0.1*MAR[c]:
-#         HFR[c] = 0.2*MAR[c]
-#     elif HFR_90 <= 0.2*MAR[c]:
-#         HFR[c] = 0.15*MAR[c]
-#     elif HFR_90 <= 0.3*MAR[c]:
-#         HFR[c] = 0.07*MAR[c]
-#     else:
-#         HFR[c] = 0
-#     EFR[c] = LFR[c]+HFR[c]
+#      HFR_90 = np.percentile(list(ROpl[c].values()),90)
+#      if HFR_90 <= 0.1*MAR[c]:
+#          HFR[c] = 0.2*MAR[c]
+#      elif HFR_90 <= 0.2*MAR[c]:
+#          HFR[c] = 0.15*MAR[c]
+#      elif HFR_90 <= 0.3*MAR[c]:
+#          HFR[c] = 0.07*MAR[c]
+#      else:
+#          HFR[c] = 0
+#      EFR[c] = LFR[c]+HFR[c]
 # print(EFR)
-#EFR = 65
+
+
+
+
+
 
 #######
 # model and opt here
@@ -235,10 +246,9 @@ model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 #     return model.AEFR[nc,nt] >= model.EFRDem[nc]
 # model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
-def wd_EFR_c(model, nc, nt):
-    return sum(model.Qds[nc,nt] for nc in model.ncatch for nt in model.ntimes)*(1/len(ntimes))>= 65
-    #return model.Qds[nc,nt] >= model.EFRDem[nc]
-model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
+# def wd_EFR_c(model, nc, nt):
+#     return model.Qds[nc,nt] >= model.EFRDem[nc]
+# model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
 # Catchment water balance per catchment.. Active for every time step and catchment, thus two indices
@@ -334,7 +344,7 @@ print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " bi
 #     optAEFR[c]=moptA
 #     optDEFR[c]=moptD
 
-# # Average optimal Allocation
+# Average optimal Allocation
 # AvoptAEFR = dict()
 # for cindex in optAEFR.keys():
 #     AvoptAEFR[cindex] = np.mean(list(optAEFR[cindex].values()))
@@ -430,6 +440,7 @@ for c in ncatch:
     optOF[c]=moptA
 optOF = pd.DataFrame.from_dict(optOF)
 optOF.to_excel(outpath)
+
 
 # Reservoir release, saved to path outpath
 outpath =  savepath + os.sep + r'Res_release_opt.xlsx'
@@ -808,3 +819,6 @@ SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
 
 SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
+
+
+
