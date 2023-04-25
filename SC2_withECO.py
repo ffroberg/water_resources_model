@@ -156,7 +156,7 @@ del scatch_reservoir2[-1] # delete key -1
 #         HFR[c] = 0
 #     EFR[c] = LFR[c]+HFR[c]
 # print(EFR)
-EFR = 65
+#EFR = 65
 
 #######
 # model and opt here
@@ -236,7 +236,8 @@ model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 # model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 def wd_EFR_c(model, nc, nt):
-    return sum(model.Qds[c,t] for c in model.ncatch for t in model.ntimes)*(1/len(ntimes))>= 844 
+    #return sum(model.Qds[nc,nt] for nc in model.ncatch for nt in model.ntimes)*(1/len(ntimes))>= 844 
+    return sum(model.Qds[nc,nt] for nt in model.ntimes)*(1/len(ntimes))>= EFR[nc] 
     #return model.Qds[nc,nt] >= model.EFRDem[nc]
 model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
