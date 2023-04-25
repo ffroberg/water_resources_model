@@ -131,32 +131,32 @@ del scatch_reservoir2[-1] # delete key -1
 
 # Environmental flow requirements
 # Mean annual runoff
-MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
+#MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
 
 # Desired ecosystem status
 # Change: poor = 0, fair = 10, good = 25, natural = 50   
-eco_stat = 0.50
+#eco_stat = 0.50
 
 # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
-ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
-exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
-LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
-HFR = {}
-EFR = {}
+# ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
+# exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
+# LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
+# HFR = {}
+# EFR = {}
 
-for c in ncatch:
-    HFR_90 = np.percentile(list(ROpl[c].values()),90)
-    if HFR_90 <= 0.1*MAR[c]:
-        HFR[c] = 0.2*MAR[c]
-    elif HFR_90 <= 0.2*MAR[c]:
-        HFR[c] = 0.15*MAR[c]
-    elif HFR_90 <= 0.3*MAR[c]:
-        HFR[c] = 0.07*MAR[c]
-    else:
-        HFR[c] = 0
-    EFR[c] = LFR[c]+HFR[c]
-print(EFR)
-
+# for c in ncatch:
+#     HFR_90 = np.percentile(list(ROpl[c].values()),90)
+#     if HFR_90 <= 0.1*MAR[c]:
+#         HFR[c] = 0.2*MAR[c]
+#     elif HFR_90 <= 0.2*MAR[c]:
+#         HFR[c] = 0.15*MAR[c]
+#     elif HFR_90 <= 0.3*MAR[c]:
+#         HFR[c] = 0.07*MAR[c]
+#     else:
+#         HFR[c] = 0
+#     EFR[c] = LFR[c]+HFR[c]
+# print(EFR)
+EFR = 65
 
 #######
 # model and opt here
@@ -202,7 +202,7 @@ model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,de
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResSini = Param(model.nres, within=NonNegativeReals,initialize = AResini, default=0) # Set initial reservoir storage for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin diversion in percent of flow downstream of upper Chao Phraya; Just one number, therefore no index, dimensionless, fraction
-model.EFRDem  = Param(model.ncatch,within=NonNegativeReals,initialize = EFR)
+#model.EFRDem  = Param(model.ncatch,within=NonNegativeReals,initialize = EFR)
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
@@ -236,7 +236,8 @@ model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 # model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 def wd_EFR_c(model, nc, nt):
-    return model.Qds[nc,nt] >= model.EFRDem[nc]
+    return sum(model.Qds[c,t] for c in model.ncatch for t in model.ntimes)*(1/len(ntimes))>= 844 
+    #return model.Qds[nc,nt] >= model.EFRDem[nc]
 model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
@@ -319,29 +320,29 @@ print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " bi
 
 #Save optimal decisions
 
-# EFR allocations, saved to path outpath
-outpath =  savepath + os.sep + r'EFR_optimal_allocations.xlsx'
-defoutpath =  savepath + os.sep + r'EFR_deficits_optimal.xlsx'
-optAEFR = dict()
-optDEFR = dict()
-for c in ncatch:
-    moptA = dict()
-    moptD = dict()
-    for t in ntimes:
-        moptA[t]=model.AEFR[c,t].value
-        moptD[t]=model.EFRDem[c]-model.AEFR[c,t].value
-    optAEFR[c]=moptA
-    optDEFR[c]=moptD
+# # EFR allocations, saved to path outpath
+# outpath =  savepath + os.sep + r'EFR_optimal_allocations.xlsx'
+# defoutpath =  savepath + os.sep + r'EFR_deficits_optimal.xlsx'
+# optAEFR = dict()
+# optDEFR = dict()
+# for c in ncatch:
+#     moptA = dict()
+#     moptD = dict()
+#     for t in ntimes:
+#         moptA[t]=model.AEFR[c,t].value
+#         moptD[t]=model.EFRDem[c]-model.AEFR[c,t].value
+#     optAEFR[c]=moptA
+#     optDEFR[c]=moptD
 
-# Average optimal Allocation
-AvoptAEFR = dict()
-for cindex in optAEFR.keys():
-    AvoptAEFR[cindex] = np.mean(list(optAEFR[cindex].values()))
+# # Average optimal Allocation
+# AvoptAEFR = dict()
+# for cindex in optAEFR.keys():
+#     AvoptAEFR[cindex] = np.mean(list(optAEFR[cindex].values()))
 
-optAEFR = pd.DataFrame.from_dict(optAEFR)
-optDEFR = pd.DataFrame.from_dict(optDEFR)
-optAEFR.to_excel(outpath)
-optDEFR.to_excel(defoutpath)  
+# optAEFR = pd.DataFrame.from_dict(optAEFR)
+# optDEFR = pd.DataFrame.from_dict(optDEFR)
+# optAEFR.to_excel(outpath)
+# optDEFR.to_excel(defoutpath)  
 
 # Agricultural allocations, saved to path outpath
 outpath =  savepath + os.sep + r'Ag_optimal_allocations.xlsx'
