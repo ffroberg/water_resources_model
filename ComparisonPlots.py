@@ -14,6 +14,8 @@ from SC3_WRS_model import total_release as total_release3, total_spill as total_
 
 from SC1_WRS_model import ntimes, ntimestamps
 
+from SC3_WRS_model import monsoon
+
 datafolder = os.path.relpath(r'Data')
 
 # Download precipitation data
@@ -138,9 +140,26 @@ from SC1_WRS_model import optAAg as optAAg1
 from SC2_WRS_model import optAAg as optAAg2
 from SC3_WRS_model import optAAg as optAAg3
 
-optAAg1 = optAAg1.mean(axis = 1)
-optAAg2 = optAAg2.mean(axis = 1)
-optAAg3 = optAAg3.mean(axis = 1)
+# Agriculture demand
+from SC1_WRS_model import optDAg
+
+mon_optAAg1 = np.mean(optAAg1.loc[monsoon])
+mon_optAAg2 = np.mean(optAAg2.loc[monsoon])
+mon_optAAg3 = np.mean(optAAg3.loc[monsoon])
+
+dry_optAAg1 = np.mean(optAAg1.loc[~np.in1d(ntimes, monsoon)])
+dry_optAAg2 = np.mean(optAAg2.loc[~np.in1d(ntimes, monsoon)])
+dry_optAAg3 = np.mean(optAAg3.loc[~np.in1d(ntimes, monsoon)])
+
+mon_optDAg = np.mean(optDAg.loc[monsoon])
+dry_optDAg = np.mean(optDAg.loc[~np.in1d(ntimes, monsoon)])
+
+
+mon_perc_Ag1 = (mon_optAAg1/mon_optDAg)*100
+
+# optAAg1 = optAAg1.mean(axis = 1)
+# optAAg2 = optAAg2.mean(axis = 1)
+# optAAg3 = optAAg3.mean(axis = 1)
 
 
 plt.plot(ntimes, optAAg1, label = 'Baseline')
