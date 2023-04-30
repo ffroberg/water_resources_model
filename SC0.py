@@ -165,10 +165,6 @@ del scatch_reservoir2[-1] # delete key -1
 # print(EFR)
 
 
-
-
-
-
 #######
 # model and opt here
 #######
@@ -328,108 +324,6 @@ print("Domestic benefit", round(value(dom_ben)/(len(model.ntimes)/12)/1000,2), "
 print("Industry benefit", round(value(ind_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 print("Power benefit", round(value(pow_ben)/(len(model.ntimes)/12)/1000,2), " billion THB per year" )
 
-#Save optimal decisions
-
-# # EFR allocations, saved to path outpath
-# outpath =  savepath + os.sep + r'EFR_optimal_allocations.xlsx'
-# defoutpath =  savepath + os.sep + r'EFR_deficits_optimal.xlsx'
-# optAEFR = dict()
-# optDEFR = dict()
-# for c in ncatch:
-#     moptA = dict()
-#     moptD = dict()
-#     for t in ntimes:
-#         moptA[t]=model.AEFR[c,t].value
-#         moptD[t]=model.EFRDem[c]-model.AEFR[c,t].value
-#     optAEFR[c]=moptA
-#     optDEFR[c]=moptD
-
-# Average optimal Allocation
-# AvoptAEFR = dict()
-# for cindex in optAEFR.keys():
-#     AvoptAEFR[cindex] = np.mean(list(optAEFR[cindex].values()))
-
-# optAEFR = pd.DataFrame.from_dict(optAEFR)
-# optDEFR = pd.DataFrame.from_dict(optDEFR)
-# optAEFR.to_excel(outpath)
-# optDEFR.to_excel(defoutpath)  
-
-# Agricultural allocations, saved to path outpath
-outpath =  savepath + os.sep + r'Ag_optimal_allocations.xlsx'
-defoutpath =  savepath + os.sep + r'Ag_deficits_optimal.xlsx'
-optAAg = dict()
-optDAg = dict()
-for c in ncatch:
-    moptA = dict()
-    moptD = dict()
-    for t in ntimes:
-        moptA[t]=model.Aag[c,t].value
-        moptD[t]=model.AgDem[c,t]-model.Aag[c,t].value
-    optAAg[c]=moptA
-    optDAg[c]=moptD
-
-# Average optimal Allocation
-AvoptAAg = dict()
-for cindex in optAAg.keys():
-    AvoptAAg[cindex] = np.mean(list(optAAg[cindex].values()))
-
-optAAg = pd.DataFrame.from_dict(optAAg)
-optDAg = pd.DataFrame.from_dict(optDAg)
-optAAg.to_excel(outpath)
-optDAg.to_excel(defoutpath)
-
-
-# Industrial allocations, saved to path outpath
-outpath =  savepath + os.sep + r'Ind_optimal_allocations.xlsx'
-defoutpath =  savepath + os.sep + r'Ind_deficits_optimal.xlsx'
-optAInd = dict()
-optDInd = dict()
-for c in ncatch:
-    moptA = dict()
-    moptD = dict()
-    for t in ntimes:
-        moptA[t]=model.Aind[c,t].value
-        moptD[t]=model.IndDem[c]-model.Aind[c,t].value
-    optAInd[c]=moptA
-    optDInd[c]=moptD
-
-# Average optimal Allocation
-AvoptAInd = dict()
-for cindex in optAInd.keys():
-    AvoptAInd[cindex] = np.mean(list(optAInd[cindex].values()))
-
-
-optAInd = pd.DataFrame.from_dict(optAInd)
-optDInd = pd.DataFrame.from_dict(optDInd)
-optAInd.to_excel(outpath)
-optDInd.to_excel(defoutpath)
-
-
-
-# Domestic allocations, saved to path outpath
-outpath =  savepath + os.sep + r'Dom_optimal_allocations.xlsx'
-defoutpath =  savepath + os.sep + r'Dom_deficits_optimal.xlsx'
-optADom = dict()
-optDDom = dict()
-for c in ncatch:
-    moptA = dict()
-    moptD = dict()
-    for t in ntimes:
-        moptA[t]=model.Adom[c,t].value
-        moptD[t]=model.DomDem[c]-model.Adom[c,t].value
-    optADom[c]=moptA
-    optDDom[c]=moptD
-
-# Average optimal Allocation
-AvoptADom = dict()
-for cindex in optADom.keys():
-    AvoptADom[cindex] = np.mean(list(optADom[cindex].values()))
-
-optADom = pd.DataFrame.from_dict(optADom)
-optDDom = pd.DataFrame.from_dict(optDDom)
-optADom.to_excel(outpath)
-optDDom.to_excel(defoutpath)  
-
 # Catchment outflow, saved to path outpath
 outpath =  savepath + os.sep + r'Catchment_outflow_opt.xlsx'
 optOF = dict()
@@ -442,383 +336,83 @@ optOF = pd.DataFrame.from_dict(optOF)
 optOF.to_excel(outpath)
 
 
-# Reservoir release, saved to path outpath
-outpath =  savepath + os.sep + r'Res_release_opt.xlsx'
-optRelease = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.Rel[r,t].value
-    optRelease[r]=moptA
-optRelease = pd.DataFrame.from_dict(optRelease)
-optRelease.to_excel(outpath)
+###############MAR for our model
 
-# Reservoir spills, saved to path outpath
-outpath =  savepath + os.sep + r'Res_spills_opt.xlsx'
-optSpill = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.Spill[r,t].value
-    optSpill[r]=moptA
-optSpill = pd.DataFrame.from_dict(optSpill)
-optSpill.to_excel(outpath)
+# Initialize a new dictionary to store average runoff for all years for each catchment
+MAR_optOF = {}
 
-# Reservoir end storage, saved to path outpath
-outpath =  savepath + os.sep + r'Res_Send_opt.xlsx'
-optStor = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.Send[r,t].value
-    optStor[r]=moptA
-optStor = pd.DataFrame.from_dict(optStor)
-optStor.to_excel(outpath)  
-#****************************************************************************
-#Save Shadow prices for all constraints
-#******************************************************************************
-# Ag demand constraints shadow prices saved to path outpath
-outpath =  savepath + os.sep + r'Ag_dem_SP.xlsx'
-SPAgDem = dict()
-for c in ncatch:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.wd_ag[c,t]]
-    SPAgDem[c]=moptA
-SPAgDem = pd.DataFrame.from_dict(SPAgDem)
-SPAgDem.to_excel(outpath)
+num_years = 29
 
-    
-# Ind demand constraints shadow prices saved to path outpath
-outpath =  savepath + os.sep + r'Ind_dem_SP.xlsx'
-SPIndDem = dict()
-for c in ncatch:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.wd_ind[c,t]]
-    SPIndDem[c]=moptA
-SPIndDem = pd.DataFrame.from_dict(SPIndDem)
-SPIndDem.to_excel(outpath)
-    
-# Domestic demand constraints shadow prices saved to path outpath
-outpath =  savepath + os.sep + r'Dom_dem_SP.xlsx'
-SPDomDem = dict()
-for c in ncatch:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.wd_dom[c,t]]
-    SPDomDem[c]=moptA
-SPDomDem = pd.DataFrame.from_dict(SPDomDem)
-SPDomDem.to_excel(outpath)
-    
-# Catchment water balances shadow prices saved to outpath
-outpath =  savepath + os.sep + r'Catch_WB_SP.xlsx'
-SPCWB = dict()
-for c in ncatch:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.wb[c,t]]
-    SPCWB[c]=moptA
-SPCWB = pd.DataFrame.from_dict(SPCWB)
-SPCWB.to_excel(outpath)
-    
-# Reservoir mass balance constraint shadow prices saved to outpath
-outpath =  savepath + os.sep + r'Res_WB_SP.xlsx'
-SPResMB = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.res[r,t]]
-    SPResMB[r]=moptA
-SPResMB = pd.DataFrame.from_dict(SPResMB)
-SPResMB.to_excel(outpath)
+# Calculate the sum of each year and the average for all years for each catchment
+for catchment in optOF.columns:
+    total_sum = 0
+    for year in range(1, num_years + 1):
+        yearly_sum = 0
+        for month in range(1, 13):
+            index = (year - 1) * 12 + month - 1  # subtract 1 to match DataFrame index
+            if index < len(optOF) and index in optOF.index:
+                yearly_sum += optOF.loc[index, catchment] # Access the catchment value in the row
+        total_sum += yearly_sum
+        
+    average = total_sum / num_years
+    MAR_optOF[catchment] = average
 
-# Reservoir capacity constraint shadow prices saved to outpath
-outpath =  savepath + os.sep + r'Res_Cap_SP.xlsx'
-SPResCap = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.rescap[r,t]]
-    SPResCap[r]=moptA
-SPResCap = pd.DataFrame.from_dict(SPResCap)
-SPResCap.to_excel(outpath)
+print(MAR_optOF)
 
-# Turbine capacity constraint shadow prices saved to outpath
-outpath =  savepath + os.sep + r'Res_TurCap_SP.xlsx'
-SPTCap = dict()
-for r in model.nres:
-    moptA = dict()
-    for t in ntimes:
-        moptA[t]=model.dual[model.turcap[r,t]]
-    SPTCap[r]=moptA
-SPTCap = pd.DataFrame.from_dict(SPTCap)
-SPTCap.to_excel(outpath)
-
-#----------------------------------------------------------------------------------------------
-# Output of objective function, optimal decisions and shadow prices
-#----------------------------------------------------------------------------------------------
-# You can of course adjust all
-
-# Plotting
-#***********************************************************
-# KC over time
-
-plt.rcParams.update({'font.size': 16})
+total_MAR_optOF = sum(MAR_optOF.values()) / len(MAR_optOF)
+print(total_MAR_optOF)
 
 
-plt.figure(figsize=[20,10])
-Kct=[]
-for ts in ntimestamps:
-    Kct.append(Kc(ts))
-plt.bar(ntimes[0:24],Kct[0:24])
-plt.xlabel('time step')
-plt.ylabel('Crop Coefficient, dimensionless')
-# Runoff time series from any catchment
 
+###################Flow duration curve
+# Combine all catchment data into a single list
+flow_data = []
+for catchment in optOF.columns:
+    flow_data.extend(optOF[catchment].values)
 
-plt.figure(figsize=[20,10])
+# Sort the data in descending order
+flow_data = np.array(flow_data)
+flow_data_sorted = np.sort(flow_data)[::-1]
 
-catchselect = 24
-plt.bar(ROpl[catchselect].keys(),ROpl[catchselect].values())
-plt.xlabel('time step')
-plt.ylabel('runoff in million m^3 per month')
-plt.title('Catchment: ' + str(catchselect))
+# Calculate the exceedance probability for each flow value
+n = len(flow_data_sorted)
+exceedance_probabilities = np.arange(1, n + 1) / (n + 1)
 
-# Ag demand time series for any catchment
-plt.figure(figsize=[20,10])
-catchselect = 24
-plt.bar(AgDempl[catchselect].keys(),AgDempl[catchselect].values())
-plt.xlabel('time step')
-plt.ylabel('Irrigation water demand in million m^3 per month')
-plt.title('Catchment: ' + str(catchselect))
-# Average runoff per catchment
-plt.figure(figsize=[20,10])
-AvROpl = dict()
-for cindex in ROpl.keys():
-    AvROpl[cindex] = np.mean(list(ROpl[cindex].values()))
+# Create the plot
+plt.figure(figsize=(10,5))
+plt.plot(exceedance_probabilities * 100, flow_data_sorted)
+plt.xlim(0, 100)
+plt.xlabel("Exceedance Probability (%)", fontsize = 10)
+plt.ylabel("Flow [MCM]", fontsize = 10)
+plt.title("Flow Duration Curve", fontsize = 10)
 
-plt.bar(np.arange(len(AvROpl.keys())),AvROpl.values())
-plt.xticks(np.arange(len(AvROpl.keys())), AvROpl.keys())
-plt.xlabel('Catchment ID')
-plt.ylabel('Average runoff in million m^3 per month')
-# Produce table that you can join to the subcatchment attribute table in QGIS
-AvROpc_pd = pd.DataFrame.from_dict(AvROpl, orient = 'index',columns=['Average RO in m3/month'])
-AvROpc_pd.to_excel(savepath + os.sep + 'AvROpl.xlsx',index_label='ID')
-
-
-# Average runoff for each catchment without their area. Unit m/moth
-AvROindividual = dict()
-for cindex in ROindividual.keys():
-    AvROindividual[cindex] = np.mean(list(ROindividual[cindex].values()))
-AvROindividualpc_pd = pd.DataFrame.from_dict(AvROindividual, orient = 'index',columns=['Average RO in m/month'])
-AvROindividualpc_pd.to_excel(savepath + os.sep + 'AvROindividual.xlsx',index_label='ID')
-
-# Average irrigation demand per catchment
-plt.figure(figsize=[20,10])
-AvAgDempl = dict()
-for cindex in AgDempl.keys():
-    AvAgDempl[cindex] = np.mean(list(AgDempl[cindex].values()))
-plt.bar(np.arange(len(AvAgDempl.keys())),AvAgDempl.values())
-plt.xticks(np.arange(len(AvAgDempl.keys())), AvAgDempl.keys())
-plt.xlabel('Catchment ID')
-plt.ylabel('Average irrigation demand in million m^3 per month')
-
-#######
-
-
-# Produce table that you can join to the subcatchment attribute table in QGIS
-AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average Agreggation demand in m3/month'])
-AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
-
-
-# PLOTTING THEM ALL TOGETHER
-catchments = connectivity['CATCHID']
-sum_dem = np.array([])
-sum_allo = np.array([])
-
-# define the number of rows and columns for the subplots
-nrows = 4
-ncols = 4
-
-# create a new figure with the specified number of subplots and tight layout
-fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=[20,10], constrained_layout=True)
-
-# loop over each catchment and plot it in a subplot
-for i, catchselect in enumerate(catchments):
-    # calculate the row and column index for the current subplot
-    row_idx = i // ncols
-    col_idx = i % ncols
-    
-    seltimes = np.arange(1, 24, 1)
-    #sums yearly demand and allocation for each catchment
-    sum_dem = np.append(sum_dem, sum(AgDempl[catchselect].values()))
-    sum_allo = np.append(sum_allo, sum(optAAg[catchselect].values))
-
-    # plot the catchment in the current subplot
-    axs[row_idx, col_idx].bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
-    axs[row_idx, col_idx].bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
-    #axs[row_idx, col_idx].set_xlabel('time step')
-    #axs[row_idx, col_idx].set_ylabel('Irrigation demand and allocation, million m3')
-    axs[row_idx, col_idx].set_title('Catchment: ' + str(catchselect))
-    #axs[row_idx, col_idx].legend(('Demand', 'Allocation'))
-
-# add a common x label and a common legend
-fig.supxlabel('time step')
-fig.supylabel('Irrigation water, million m3')
-fig.legend(('Demand', 'Allocation'), loc='lower center', ncol=2)
-
-# remove the empty subplots
-for i in range(len(catchments), nrows*ncols):
-    row_idx = i // ncols
-    col_idx = i % ncols
-    axs[row_idx, col_idx].remove()
-
-# show the plot
+# Display the plot
 plt.show()
 
+########LFR and HFR
 
-# percentage of demand met for each catchment
-perc_dem = (sum_allo/sum_dem)*100
-str_catchments = [str(x) for x in catchments]
-plt.figure(figsize=[20,10])
-plt.bar(str_catchments,perc_dem)
-plt.xlabel('Catchment ID')
-plt.ylabel('Percentage of demand met by allocation')
-plt.title('Percentage of demand met by allocation')
+# Calculate percentiles for LFR
+LFR_natural = np.percentile(flow_data_sorted, 50)*12
+LFR_good = np.percentile(flow_data_sorted, 25)*12
+LFR_fair = np.percentile(flow_data_sorted, 10)*12
 
-# irrigation demand and allocation
-plt.figure(figsize=[20,10])
-catchselect = 1
-seltimes = np.arange(1,24,1)
-plt.bar(AgDempl[catchselect].keys(),AgDempl[catchselect].values())
-plt.bar(optAAg[catchselect].keys(),optAAg[catchselect].values)
-plt.xlabel('time step')
-plt.ylabel('Irrigation water demand and irrigation water allocation, million m3')
-plt.title('Catchment: ' + str(catchselect))
-plt.legend(('Demand','Allocation'))
+# Calculate HFR
+HFR = 0.2 * total_MAR_optOF
 
+# Calculate EWR
+EWR_natural = LFR_natural + HFR
+EWR_good = LFR_good + HFR
+EWR_fair = LFR_fair + HFR
 
-# End Storage time series
-plt.figure(figsize=[20,10])
-resselect = 'Bhumipol'
-rselect = Aname2[resselect]
-plt.bar(optStor[rselect].keys(),optStor[rselect].values)
-plt.xlabel('time step')
-plt.ylabel('End storage in million m^3')
-plt.title('Reservoir: ' + str(resselect))
+# Create a pandas DataFrame with the desired values
+table = pd.DataFrame({
+    'LFR': [LFR_natural, LFR_good, LFR_fair],
+    'HFR': [HFR, HFR, HFR],
+    'EWR': [EWR_natural, EWR_good, EWR_fair]
+}, index=['Natural', 'Good', 'Fair'])
 
-# Water Shadow price time series for any catchment
-plt.figure(figsize=[20,10])
-catchselect = 24
-plt.bar(SPCWB[catchselect].keys(),SPCWB[catchselect].values)
-plt.xlabel('time step')
-plt.ylabel('Water Shadow price, THB per m3')
-plt.title('Catchment: ' + str(catchselect))
+print(table)
 
-
-# Average water shadow price per catchment
-plt.figure(figsize=[20,10])
-AvSPCWB = dict()
-for cindex in SPCWB.keys():
-    AvSPCWB[cindex] = np.mean(list(SPCWB[cindex].values))
-plt.bar(np.arange(len(AvSPCWB.keys())),AvSPCWB.values())
-plt.xticks(np.arange(len(AvSPCWB.keys())), AvSPCWB.keys())
-plt.xlabel('Catchment ID')
-plt.ylabel('Average Water Shadow price, THB per m3')
-# Produce table that you can join to the subcatchment attribute table in QGIS
-AvSPCWB_pandas = pd.DataFrame.from_dict(AvSPCWB, orient = 'index',columns=['Average Water Shadow price, THB per m3'])
-AvSPCWB_pandas.to_excel(savepath + os.sep + 'AvSPCWB.xlsx',index_label='ID')
-# Reservoir capacity Shadow price time series for any reservoir
-plt.figure(figsize=[20,10])
-resselect = 'Bhumipol'
-rselect = Aname2[resselect]
-plt.bar(SPResCap[rselect].keys(),SPResCap[rselect].values)
-plt.xlabel('time step')
-plt.ylabel('Reservoir capacity Shadow price, THB per m3')
-plt.title('Reservoir: ' + str(resselect))
-# Average capacity shadow price per reservoir
-plt.figure(figsize=[20,10])
-AvSPResCap = dict()
-for rindex in SPResCap.keys():
-    AvSPResCap[rindex] = np.mean(list(SPResCap[rindex].values))
-plt.bar(AvSPResCap.keys(),AvSPResCap.values())
-plt.xlabel('Reservoir ID')
-plt.ylabel('Average reservoir capacity shadow price, THB per m3')
-# Produce table that you can join to the subcatchment attribute table in QGIS
-AvSPResCap_pandas = pd.DataFrame.from_dict(AvSPResCap, orient = 'index',columns=['Average Reservoir Capacity Shadow price, THB per m3'])
-AvSPResCap_pandas.to_excel(savepath + os.sep + 'AvSPResCap.xlsx',index_label='ID')
-
-
-# Deficit and demand plots for all catchments + sum of deficit
-# PLOTTING THEM ALL TOGETHER
-
-DeficitSum = dict()
-
-# define the number of rows and columns for the subplots
-nrows = 4
-ncols = 4
-
-# create a new figure with the specified number of subplots and tight layout
-fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=[20,10], constrained_layout=True)
-
-# loop over each catchment and plot it in a subplot
-for i, catchselect in enumerate(ncatch):
-    # calculate the row and column index for the current subplot
-    row_idx = i // ncols
-    col_idx = i % ncols
-    
-    seltimes = np.arange(1, 24, 1)
-    
-    # plot the catchment in the current subplot
-    axs[row_idx, col_idx].bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
-    axs[row_idx, col_idx].bar(optDAg[catchselect].keys(), optDAg[catchselect].values, color='green')
-    axs[row_idx, col_idx].set_xlabel('time step')
-    #axs[row_idx, col_idx].set_ylabel('Irrigation water, million m3')
-    axs[row_idx, col_idx].set_title('Catchment: ' + str(catchselect))
-    #axs[row_idx, col_idx].legend(('Ag. Demand', 'Ag. optimal deficit'))
-
-    # Calculate sum of deficit for all catchment and add to a dictionary
-    DeficitSum[catchselect] = np.sum(optDAg[catchselect])
-
-# add a common x label and a common legend
-#fig.supxlabel('time step')
-fig.supylabel('Irrigation water, million m3')
-fig.legend(('Ag. Demand', 'Ag. optimal deficit'), loc='lower center', ncol=2)
-
-# remove the empty subplots
-for i in range(len(ncatch), nrows*ncols):
-    row_idx = i // ncols
-    col_idx = i % ncols
-    axs[row_idx, col_idx].remove()
-
-# show the plot
-plt.show()
-
-# Reservoir release plots
-plt.figure(figsize=[20,10])
-plt.bar(optRelease[rselect].keys(),optRelease[rselect].values)
-plt.xlabel('time step')
-plt.ylabel('Reservoir release')
-plt.title('Reservoir: ' + str(rselect))
-
-# Sum of all three water demands
-
-SumDem = dict()
-for key in DomDem.keys():
-    SumDem[key] = IndDem[key] + AvAgDempl[key] + DomDem[key]
-
-
-SumA = dict()
-for key in AvoptADom.keys():
-    SumA[key] = AvoptADom[key] + AvoptAAg[key] + AvoptAInd[key]
-
-# Add to DataFrames and export to csv
-SumDem_pandas = pd.DataFrame.from_dict(SumDem, orient = 'index',columns=['Demand [m3]'])
-SumDem_pandas.to_csv(savepath + os.sep + 'SumDemand.csv',index_label='ID')
-
-SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
-SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
-
+print('MAR:',total_MAR_optOF)
 
 

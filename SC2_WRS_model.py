@@ -699,6 +699,7 @@ SPTCap.to_excel(outpath)
 # # Produce table that you can join to the subcatchment attribute table in QGIS
 # AvSPCWB_pandas = pd.DataFrame.from_dict(AvSPCWB, orient = 'index',columns=['Average Water Shadow price, THB per m3'])
 # AvSPCWB_pandas.to_excel(savepath + os.sep + 'AvSPCWB.xlsx',index_label='ID')
+
 # # Reservoir capacity Shadow price time series for any reservoir
 # plt.figure(figsize=[20,10])
 # resselect = 'Bhumipol'
@@ -707,6 +708,7 @@ SPTCap.to_excel(outpath)
 # plt.xlabel('time step')
 # plt.ylabel('Reservoir capacity Shadow price, THB per m3')
 # plt.title('Reservoir: ' + str(resselect))
+
 # # Average capacity shadow price per reservoir
 # plt.figure(figsize=[20,10])
 # AvSPResCap = dict()

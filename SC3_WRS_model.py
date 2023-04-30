@@ -111,7 +111,7 @@ for ires in AResCap: # catch any missing NaNs
         AResCap[ires]=0
 
 # Create an empty list to store the monsoon months
-FSC = 0.5 # Flood safety coefficient
+FSC = 0.9 # Flood safety coefficient
 monsoon = []
 # Loop through month vector
 for num in range(len(ntimes)):
@@ -832,14 +832,13 @@ SPTCap.to_excel(outpath)
 # SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
 
 
-# # Flood safety capacity
+# Flood safety capacity
+FSCap = 1-FSC # Flood safety in m3 is 1-FSC of the capacity in reservoirs
+FScap = {key: (value * FSCap) for key, value in AResCap.items()} 
+FScap_total = sum(FScap.values()) # Find the total FScap, [MCM]
 
-# FScap = {key: value * FSC for key, value in AResCap.items()} # Flood safety is 50% of the capacity in reservoirs
-# FScap_total = sum(FScap.values()) # Find the total FScap, [MCM]
 
 ################ POWER generated, to use in comparison plot file
-
-
 for i in range(1,len(ntimes)+1):
     if i in monsoon:
         pow_gen = Aweq2 * optRelease
@@ -849,7 +848,6 @@ for i in range(1,len(ntimes)+1):
 
 AVpow_gen = pow_gen.mean(axis = 1)
 SUMpow_gen = pow_gen.sum(axis = 1)
-
 
 ###############MAR for our model
 
@@ -901,9 +899,6 @@ plt.title("Flow Duration Curve")
 plt.show()
 
 ########LFR and HFR
-
-
-
 # Calculate percentiles for LFR
 LFR_natural = np.percentile(flow_data_sorted, 50)*12
 LFR_good = np.percentile(flow_data_sorted, 25)*12
