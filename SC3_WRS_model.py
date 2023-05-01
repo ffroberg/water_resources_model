@@ -600,50 +600,66 @@ SPTCap.to_excel(outpath)
 # AvAgDempl_pandas = pd.DataFrame.from_dict(AvAgDempl, orient = 'index',columns=['Average Agreggation demand in m3/month'])
 # AvAgDempl_pandas.to_excel(savepath + os.sep + 'AvAgDempl.xlsx',index_label='ID')
 
-# # PLOTTING THEM ALL TOGETHER
-# catchments = connectivity['CATCHID']
-# sum_dem = np.array([])
-# sum_allo = np.array([])
+# PLOTTING THEM ALL TOGETHER
+catchments = connectivity['CATCHID']
+sum_dem = np.array([])
+sum_allo = np.array([])
 
-# # define the number of rows and columns for the subplots
-# nrows = 4
-# ncols = 4
+#calculate ave demand and allocation during monsoon and dry season
+dry_ave_dem = optDAg.drop(optDAg.index[monsoon]).mean(axis=0)
+mon_ave_dem = optDAg.iloc[monsoon, :].mean(axis=0)
+dry_ave_allo = optAAg.drop(optAAg.index[monsoon]).mean(axis=0)
+mon_ave_allo = optAAg.iloc[monsoon, :].mean(axis=0)
 
-# # create a new figure with the specified number of subplots and tight layout
-# fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=[20,10], constrained_layout=True)
+# percent demand met
+mon_perc_met = (mon_ave_allo/mon_ave_dem)*100
+dry_perc_met = (dry_ave_allo/dry_ave_dem)*100
 
-# # loop over each catchment and plot it in a subplot
-# for i, catchselect in enumerate(catchments):
-#     # calculate the row and column index for the current subplot
-#     row_idx = i // ncols
-#     col_idx = i % ncols
+# define the number of rows and columns for the subplots
+nrows = 4
+ncols = 4
+
+# create a new figure with the specified number of subplots and tight layout
+fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=[20,10], constrained_layout=True)
+
+# loop over each catchment and plot it in a subplot
+for i, catchselect in enumerate(catchments):
+    # calculate the row and column index for the current subplot
+    row_idx = i // ncols
+    col_idx = i % ncols
     
-#     seltimes = np.arange(1, 24, 1)
-#     #sums yearly demand and allocation for each catchment
-#     sum_dem = np.append(sum_dem, sum(AgDempl[catchselect].values()))
-#     sum_allo = np.append(sum_allo, sum(optAAg[catchselect].values))
+    seltimes = np.arange(1, 24, 1)
+    #sums yearly demand and allocation for each catchment
+    sum_dem = np.append(sum_dem, sum(AgDempl[catchselect].values()))
+    sum_allo = np.append(sum_allo, sum(optAAg[catchselect].values))
+    # ave_dem = np.append(ave_dem, np.mean(optDAg[catchselect].loc[~np.in1d(ntimes, monsoon)]))
+    # mon_ave_dem = np.append(mon_ave_dem, np.mean(optDAg[catchselect].loc[monsoon]))
+    # ave_allo = np.append(ave_allo, np.mean(optAAg[catchselect].loc[~np.in1d(ntimes, monsoon)]))
+    # mon_ave_allo = np.append(mon_ave_allo, np.mean(optAAg[catchselect].loc[monsoon]))
 
-#     # plot the catchment in the current subplot
-#     axs[row_idx, col_idx].bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
-#     axs[row_idx, col_idx].bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
-#     #axs[row_idx, col_idx].set_xlabel('time step')
-#     #axs[row_idx, col_idx].set_ylabel('Irrigation demand and allocation, million m3')
-#     axs[row_idx, col_idx].set_title('Catchment: ' + str(catchselect))
-#     #axs[row_idx, col_idx].legend(('Demand', 'Allocation'))
 
-# # add a common x label and a common legend
-# fig.supxlabel('time step')
-# fig.supylabel('Irrigation water, million m3')
-# fig.legend(('Demand', 'Allocation'), loc='lower center', ncol=2)
 
-# # remove the empty subplots
-# for i in range(len(catchments), nrows*ncols):
-#     row_idx = i // ncols
-#     col_idx = i % ncols
-#     axs[row_idx, col_idx].remove()
+    # plot the catchment in the current subplot
+    axs[row_idx, col_idx].bar(AgDempl[catchselect].keys(), AgDempl[catchselect].values())
+    axs[row_idx, col_idx].bar(optAAg[catchselect].keys(), optAAg[catchselect].values)
+    #axs[row_idx, col_idx].set_xlabel('time step')
+    #axs[row_idx, col_idx].set_ylabel('Irrigation demand and allocation, million m3')
+    axs[row_idx, col_idx].set_title('Catchment: ' + str(catchselect))
+    #axs[row_idx, col_idx].legend(('Demand', 'Allocation'))
 
-# # show the plot
-# plt.show()
+# add a common x label and a common legend
+fig.supxlabel('time step')
+fig.supylabel('Irrigation water, million m3')
+fig.legend(('Demand', 'Allocation'), loc='lower center', ncol=2)
+
+# remove the empty subplots
+for i in range(len(catchments), nrows*ncols):
+    row_idx = i // ncols
+    col_idx = i % ncols
+    axs[row_idx, col_idx].remove()
+
+# show the plot
+plt.show()
 
 
 # # percentage of demand met for each catchment
