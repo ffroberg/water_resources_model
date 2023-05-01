@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 
 #make plots bigger
-plt.rc('font', size=18)
+plt.rc('font', size=15)
 
 # Import total_release from scenarios
 from SC1_WRS_model import total_release as total_release1, total_spill as total_Spill1
