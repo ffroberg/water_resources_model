@@ -158,6 +158,7 @@ EFR = {10: 5.9622927513659825,
  25: 21.407829315289153,
  9: 20.088436993043594}
 
+
 # for c in ncatch:
 #     HFR_90 = np.percentile(list(ROpl[c].values()),90)
 #     if HFR_90 <= 0.1*MAR[c]:
@@ -230,6 +231,11 @@ def obj_rule(model):
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
 
+# Environmental flow requirement constraint
+def wd_EFR_c(model, nc, nt):
+    return sum(model.Qds[nc,nt] for nt in model.ntimes)*(1/len(ntimes)) >= EFR[nc]*10
+model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
+
 # Agricultural demand constraint per catchment. Active for every time step and catchment, thus two indices
 def wd_ag_c(model, nc, nt):
     return model.Aag[nc,nt] <= model.AgDem[nc,nt]
@@ -245,10 +251,6 @@ def wd_dom_c(model, nc, nt):
     return model.Adom[nc,nt] <= model.DomDem[nc]
 model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 
-# Environmental flow requirement constraint
-def wd_EFR_c(model, nc, nt):
-    return sum(model.Qds[nc,nt] for nt in model.ntimes)*(1/len(ntimes))>= EFR[nc] 
-model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
 # Catchment water balance per catchment.. Active for every time step and catchment, thus two indices
@@ -509,7 +511,17 @@ for c in ncatch:
     SPDomDem[c]=moptA
 SPDomDem = pd.DataFrame.from_dict(SPDomDem)
 SPDomDem.to_excel(outpath)
-    
+
+outpath =  savepath + os.sep + r'EFR_dem_SP.xlsx'
+SPEFRDem = dict()
+for c in ncatch:
+    moptA = dict()
+    for t in ntimes:
+        moptA[t]=model.dual[model.wd_EFR[c,t]]
+    SPEFRDem[c]=moptA
+SPEFRDem = pd.DataFrame.from_dict(SPEFRDem)
+SPEFRDem.to_excel(outpath)
+
 # Catchment water balances shadow prices saved to outpath
 outpath =  savepath + os.sep + r'Catch_WB_SP.xlsx'
 SPCWB = dict()
@@ -553,6 +565,7 @@ for r in model.nres:
     SPTCap[r]=moptA
 SPTCap = pd.DataFrame.from_dict(SPTCap)
 SPTCap.to_excel(outpath)
+
 
 #----------------------------------------------------------------------------------------------
 # Output of objective function, optimal decisions and shadow prices

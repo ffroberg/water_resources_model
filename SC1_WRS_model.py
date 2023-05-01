@@ -890,3 +890,6 @@ print(table)
 print('MAR:',total_MAR_optOF)
 
 
+####### Check if the constrain Demand >= allocation (for agriculture) is true for all catchment
+is_higher = (optDAg >= optAAg).all()
+print(is_higher)

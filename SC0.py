@@ -138,32 +138,42 @@ del scatch_reservoir2[-1] # delete key -1
 
 # Environmental flow requirements
 # Mean annual runoff
-#MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
 
-# Desired ecosystem status
-# Change: poor = 0, fair = 10, good = 25, natural = 50   
-#eco_stat = 0.50
+MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
 
-# # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
-# RO_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
-# exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
-# LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
-# HFR = {}
+#Desired ecosystem status
+#Change: poor = 0, fair = 10, good = 25, natural = 50   
+eco_stat = 0.1
 
+# Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
+ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
+exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
+LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
+HFR = {}
+EFR = {}
 
-# for c in ncatch:
-#      HFR_90 = np.percentile(list(ROpl[c].values()),90)
-#      if HFR_90 <= 0.1*MAR[c]:
-#          HFR[c] = 0.2*MAR[c]
-#      elif HFR_90 <= 0.2*MAR[c]:
-#          HFR[c] = 0.15*MAR[c]
-#      elif HFR_90 <= 0.3*MAR[c]:
-#          HFR[c] = 0.07*MAR[c]
-#      else:
-#          HFR[c] = 0
-#      EFR[c] = LFR[c]+HFR[c]
-# print(EFR)
+for c in ncatch:
+     HFR_90 = np.percentile(list(ROpl[c].values()),90)
+     if HFR_90 <= 0.1*MAR[c]:
+         HFR[c] = 0.2*MAR[c]
+     elif HFR_90 <= 0.2*MAR[c]:
+         HFR[c] = 0.15*MAR[c]
+     elif HFR_90 <= 0.3*MAR[c]:
+         HFR[c] = 0.07*MAR[c]
+     else:
+         HFR[c] = 0
+     EFR[c] = LFR[c]+HFR[c]
 
+print(EFR)
+
+# # Create a pandas DataFrame with the desired values
+# table = pd.DataFrame({
+#     'LFR': [LFR_natural, LFR_good, LFR_fair],
+#     'HFR': [HFR, HFR, HFR],
+#     'EWR': [EWR_natural, EWR_good, EWR_fair]
+# }, index=['Natural', 'Good', 'Fair'])
+
+# print(table)
 
 #######
 # model and opt here
@@ -391,28 +401,28 @@ plt.show()
 
 ########LFR and HFR
 
-# Calculate percentiles for LFR
-LFR_natural = np.percentile(flow_data_sorted, 50)*12
-LFR_good = np.percentile(flow_data_sorted, 25)*12
-LFR_fair = np.percentile(flow_data_sorted, 10)*12
+# # Calculate percentiles for LFR
+# LFR_natural = np.percentile(flow_data_sorted, 50)*12
+# LFR_good = np.percentile(flow_data_sorted, 25)*12
+# LFR_fair = np.percentile(flow_data_sorted, 10)*12
 
-# Calculate HFR
-HFR = 0.2 * total_MAR_optOF
+# # Calculate HFR
+# HFR = 0.2 * total_MAR_optOF
 
-# Calculate EWR
-EWR_natural = LFR_natural + HFR
-EWR_good = LFR_good + HFR
-EWR_fair = LFR_fair + HFR
+# # Calculate EWR
+# EWR_natural = LFR_natural + HFR
+# EWR_good = LFR_good + HFR
+# EWR_fair = LFR_fair + HFR
 
-# Create a pandas DataFrame with the desired values
-table = pd.DataFrame({
-    'LFR': [LFR_natural, LFR_good, LFR_fair],
-    'HFR': [HFR, HFR, HFR],
-    'EWR': [EWR_natural, EWR_good, EWR_fair]
-}, index=['Natural', 'Good', 'Fair'])
+# # Create a pandas DataFrame with the desired values
+# table = pd.DataFrame({
+#     'LFR': [LFR_natural, LFR_good, LFR_fair],
+#     'HFR': [HFR, HFR, HFR],
+#     'EWR': [EWR_natural, EWR_good, EWR_fair]
+# }, index=['Natural', 'Good', 'Fair'])
 
-print(table)
+# print(table)
 
-print('MAR:',total_MAR_optOF)
+# print('MAR:',total_MAR_optOF)
 
 

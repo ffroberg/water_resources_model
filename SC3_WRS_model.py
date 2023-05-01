@@ -315,14 +315,18 @@ outpath =  savepath + os.sep + r'Ag_optimal_allocations.xlsx'
 defoutpath =  savepath + os.sep + r'Ag_deficits_optimal.xlsx'
 optAAg = dict()
 optDAg = dict()
+optDem = dict()
 for c in ncatch:
     moptA = dict()
     moptD = dict()
+    moptDem = dict()
     for t in ntimes:
         moptA[t]=model.Aag[c,t].value
         moptD[t]=model.AgDem[c,t]-model.Aag[c,t].value
+        moptDem[t] = model.AgDem[c,t]
     optAAg[c]=moptA
     optDAg[c]=moptD
+    optDem[c]=moptDem
 
 # Average optimal Allocation
 AvoptAAg = dict()
@@ -331,6 +335,7 @@ for cindex in optAAg.keys():
 
 optAAg = pd.DataFrame.from_dict(optAAg)
 optDAg = pd.DataFrame.from_dict(optDAg)
+optAgDem = pd.DataFrame.from_dict(optDem) # Opt Demand
 optAAg.to_excel(outpath)
 optDAg.to_excel(defoutpath)
 
