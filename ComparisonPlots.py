@@ -1,4 +1,7 @@
 
+
+# FIRST RUN ONE OF THE SC1-3 FILES TO BE ABLE TO USE THE "VALUE"-FUNCTION
+
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import pandas as pd
@@ -7,18 +10,25 @@ import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
-
-#make plots bigger
-plt.rc('font', size=15)
-
 # Import total_release from scenarios
-from SC1_WRS_model import total_release as total_release1, total_spill as total_Spill1
-from SC2_WRS_model import total_release as total_release2, total_spill as total_Spill2
-from SC3_WRS_model import total_release as total_release3, total_spill as total_Spill3
+from SC1_WRS_model import total_spill as total_Spill1, ntimes, ntimestamps
+from SC2_WRS_model import total_spill as total_Spill2
+from SC3_WRS_model import total_spill as total_Spill3, monsoon
 
-from SC1_WRS_model import ntimes, ntimestamps
+# Import benefit
+from SC1_WRS_model import ag_ben as ag_ben1, ind_ben as ind_ben1, dom_ben as dom_ben1, pow_ben as pow_ben1
+from SC2_WRS_model import ag_ben as ag_ben2, ind_ben as ind_ben2, dom_ben as dom_ben2, pow_ben as pow_ben2
+from SC3_WRS_model import ag_ben as ag_ben3, ind_ben as ind_ben3, dom_ben as dom_ben3, pow_ben as pow_ben3
 
-from SC3_WRS_model import monsoon
+# Import Power generation
+from SC1_WRS_model import AVpow_gen as AVpow_gen1, SUMpow_gen as SUMpow_gen1
+from SC2_WRS_model import AVpow_gen as AVpow_gen2, SUMpow_gen as SUMpow_gen2
+from SC3_WRS_model import AVpow_gen as AVpow_gen3, SUMpow_gen as SUMpow_gen3
+
+# Shadow price water + capacity
+from SC1_WRS_model import SPResCap as SPResCap1, SPCWB as SPCWB1
+from SC2_WRS_model import SPResCap as SPResCap2, SPCWB as SPCWB2
+from SC3_WRS_model import SPResCap as SPResCap3, SPCWB as SPCWB3
 
 datafolder = os.path.relpath(r'Data')
 
@@ -39,25 +49,14 @@ grun_filtered = grun[grun['Month'].isin(ntimestamps)]
 grun_average = grun_filtered.mean(axis = 1)
 
 
+#make plots bigger
+plt.rc('font', size=15)
+
 ### Remaking ntimes to a list of all the month names
 month_names = [date.strftime("%b") for date in ntimestamps]
 years = 4
 
-# Plot data and set x-tick labels to January of each year
-plt.figure(figsize=(15,5))
-plt.plot(ntimes, total_release1, label='1')
-plt.plot(ntimes, total_release2, label='2')
-plt.plot(ntimes, total_release3, label='3')
-plt.xticks(ntimes, month_names, rotation=55)
-for i in range(years):
-    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
-plt.legend()
-plt.xlim(0, 12*years)
-plt.ylabel('Total release [MCM]')
-plt.show()
-
-
-
+###############################
 ### Plot precipitation (average over all reservoirs), and total reservoir spill for 3 scenarios
 fig, ax1 = plt.subplots(figsize =(15,5))
 # plot the three graphs on the first y-axis
@@ -84,46 +83,8 @@ plt.xlim(0,years*12)
 plt.subplots_adjust(bottom=0.15)
 plt.show()
 
-# Deficit for all 
-from SC1_WRS_model import optDInd as optDInd1, optDAg as optDAg1, optDAg, optDDom as optDDom1, optOF as optOF1
-from SC2_WRS_model import optDInd as optDInd2, optDAg as optDAg2, optDAg, optDDom as optDDom2, optOF as optOF2
-from SC3_WRS_model import optDInd as optDInd3, optDAg as optDAg3, optDAg, optDDom as optDDom3, optOF as optOF3
-
-# Gather all deficit for agriculture, domestic and industry and find mean across all catchments
-deficit_sum1 = (optDInd1.mean(axis=1) + optDAg1.mean(axis = 1) + optDDom1.mean(axis = 1))/3
-deficit_sum2 = (optDInd2.mean(axis=1) + optDAg2.mean(axis = 1) + optDDom2.mean(axis = 1))/3
-deficit_sum3 = (optDInd3.mean(axis=1) + optDAg3.mean(axis = 1) + optDDom3.mean(axis = 1))/3
-
-plt.figure(figsize=(15,5))
-plt.plot(ntimes, deficit_sum1, label = 'Baseline')
-plt.plot(ntimes, deficit_sum2, label = 'with KST')
-plt.plot(ntimes, deficit_sum3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-for i in range(years):
-    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
-plt.legend()
-plt.ylabel('Mean deficit [MCM]')
-plt.xlim(0,12*years)
-plt.show()
-
-plt.figure(figsize=(15,5))
-plt.plot(ntimes, optOF1.mean(axis = 1), label = 'Baseline')
-plt.plot(ntimes, optOF2.mean(axis = 1), label = 'with KST')
-plt.plot(ntimes, optOF3.mean(axis = 1), label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-for i in range(years):
-    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
-plt.legend()
-plt.ylabel('Outflow [MCM]')
-plt.xlim(0,years*12)
-plt.show()
-
-
+###############################
 # Benefit for all
-from SC1_WRS_model import ag_ben as ag_ben1, ind_ben as ind_ben1, dom_ben as dom_ben1, pow_ben as pow_ben1
-from SC2_WRS_model import ag_ben as ag_ben2, ind_ben as ind_ben2, dom_ben as dom_ben2, pow_ben as pow_ben2
-from SC3_WRS_model import ag_ben as ag_ben3, ind_ben as ind_ben3, dom_ben as dom_ben3, pow_ben as pow_ben3
-
 scenario1 = np.array([value(ag_ben1), value(ind_ben1), value(dom_ben1), value(pow_ben1)])
 scenario2 = np.array([value(ag_ben2), value(ind_ben2), value(dom_ben2), value(pow_ben2)])
 scenario3 = np.array([value(ag_ben3), value(ind_ben3), value(dom_ben3), value(pow_ben3)])
@@ -146,48 +107,8 @@ plt.legend()
 plt.show()
 
 
-# Agriculture allocation
-from SC1_WRS_model import optAAg as optAAg1
-from SC2_WRS_model import optAAg as optAAg2
-from SC3_WRS_model import optAAg as optAAg3
-
-# Agriculture demand
-from SC1_WRS_model import optDAg
-
-mon_optAAg1 = np.mean(optAAg1.loc[monsoon])
-mon_optAAg2 = np.mean(optAAg2.loc[monsoon])
-mon_optAAg3 = np.mean(optAAg3.loc[monsoon])
-
-dry_optAAg1 = np.mean(optAAg1.loc[~np.in1d(ntimes, monsoon)])
-dry_optAAg2 = np.mean(optAAg2.loc[~np.in1d(ntimes, monsoon)])
-dry_optAAg3 = np.mean(optAAg3.loc[~np.in1d(ntimes, monsoon)])
-
-mon_optDAg = np.mean(optDAg.loc[monsoon])
-dry_optDAg = np.mean(optDAg.loc[~np.in1d(ntimes, monsoon)])
-
-
-mon_perc_Ag1 = (mon_optAAg1/mon_optDAg)*100
-
-# optAAg1 = optAAg1.mean(axis = 1)
-# optAAg2 = optAAg2.mean(axis = 1)
-# optAAg3 = optAAg3.mean(axis = 1)
-
-plt.figure(figsize=(15,5))
-plt.plot(ntimes, optAAg1, label = 'Baseline')
-plt.plot(ntimes, optAAg2, label = 'with KST')
-plt.plot(ntimes, optAAg3, label = 'with KST and FS')
-plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
-for i in range(years):
-    plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
-plt.legend(loc = 'upper right')
-plt.ylabel('Mean agriculture allocation [MCM]')
-plt.xlim(0,years*12)
-plt.show()
-
+###############################
 # Power generation
-from SC1_WRS_model import AVpow_gen as AVpow_gen1, SUMpow_gen as SUMpow_gen1
-from SC2_WRS_model import AVpow_gen as AVpow_gen2, SUMpow_gen as SUMpow_gen2
-from SC3_WRS_model import AVpow_gen as AVpow_gen3, SUMpow_gen as SUMpow_gen3
 
 plt.figure(figsize=(15,5))
 plt.plot(ntimes, SUMpow_gen1, label = 'Baseline')
@@ -214,47 +135,8 @@ plt.xlim(0,years*12)
 plt.show()
 
 
-
-# Precipitation for all catchments with monsoon
-fig, axes = plt.subplots(nrows=13, ncols=1, figsize = (10,25), constrained_layout=True)
-for i, key in enumerate(prec_filtered.columns):
-    if key == 'Month':
-        continue
-    ax = axes[i-1]
-    ax.plot(prec_filtered[key], label = key)
-    ax.legend(loc = 'upper right', fontsize = 10)
-    for j in prec_filtered.index:
-        if j in monsoon and j-1 not in monsoon:
-            ax.axvspan(j,j+4, facecolor = 'blue', alpha = 0.2)
-
-    
-fig.text(0.04, 0.5, '[mm/month]', ha='center', va='center', rotation='vertical', fontsize = 10)
-plt.xlabel('Time [month]')
-plt.show()
-
-
-# Average precipitation
-fig, ax1 = plt.subplots(figsize=(15,5))
-ax1.plot(ntimes, prec_average, label = 'Precipitation')
-ax1.plot(ntimes, pet_average, label = 'PET')
-ax1.set_ylabel('[mm/month]')
-
-ax2 = ax1.twinx()
-ax2.plot(ntimes, grun_average, label = 'G-RUN', color = 'green')
-ax2.set_ylabel('[$m^3$/s]')
-for j in prec_filtered.index:
-    if j in monsoon and j-1 not in monsoon:
-        plt.axvspan(j,j+4, facecolor = 'blue', alpha = 0.2)
-ax1.legend(loc = 'upper right')
-ax2.legend(loc = 'upper right', bbox_to_anchor = (1.0, 0.80))
-
-plt.xlabel('time [Month]')
-plt.show()
-
-# Shadow price water capacity
-from SC1_WRS_model import SPResCap as SPResCap1, SPCWB as SPCWB1
-from SC2_WRS_model import SPResCap as SPResCap2, SPCWB as SPCWB2
-from SC3_WRS_model import SPResCap as SPResCap3, SPCWB as SPCWB3
+###############################
+# Shadow price water + capacity
 
 avSPResCap1 = SPResCap1.mean(axis = 1)
 avSPResCap2 = SPResCap2.mean(axis = 1)
@@ -291,19 +173,81 @@ plt.show()
 
 
 
+###############################
+# Deficit for all 
+# from SC1_WRS_model import optDInd as optDInd1, optDAg as optDAg1, optDDom as optDDom1, optOF as optOF1
+# from SC2_WRS_model import optDInd as optDInd2, optDAg as optDAg2, optDDom as optDDom2, optOF as optOF2
+# from SC3_WRS_model import optDInd as optDInd3, optDAg as optDAg3, optDDom as optDDom3, optOF as optOF3
 
+# # Gather all deficit for agriculture, domestic and industry and find mean across all catchments
+# deficit_sum1 = (optDInd1.mean(axis=1) + optDAg1.mean(axis = 1) + optDDom1.mean(axis = 1))/3
+# deficit_sum2 = (optDInd2.mean(axis=1) + optDAg2.mean(axis = 1) + optDDom2.mean(axis = 1))/3
+# deficit_sum3 = (optDInd3.mean(axis=1) + optDAg3.mean(axis = 1) + optDDom3.mean(axis = 1))/3
 
-###### FROM SC1
-# plt.plot(ntimes, optOF[7], label = 'Outflow')
-# plt.plot(ntimes, optAAg[7], label = 'Ag. allocation')
-# plt.plot(ntimes, optAInd[7], label = 'Ind. allocation')
-# plt.plot(ntimes, optADom[7], label = 'Dom. allocation')
-# plt.plot(ntimes, optSpill[1], label = 'spill')
-# plt.plot(ntimes, ROpl[7].values(), label = 'Runoff')
-# plt.axvspan(7, 10, facecolor='blue', alpha=0.2)
-# plt.axvspan(7+12, 10+12, facecolor='blue', alpha=0.2)
-# plt.axvspan(7+12+12, 10+12+12, facecolor='blue', alpha=0.2)
+# plt.figure(figsize=(15,5))
+# plt.plot(ntimes, deficit_sum1, label = 'Baseline')
+# plt.plot(ntimes, deficit_sum2, label = 'with KST')
+# plt.plot(ntimes, deficit_sum3, label = 'with KST and FS')
+# plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
+# for i in range(years):
+#     plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
 # plt.legend()
-# plt.xlim(0,36)
-# #plt.savefig('Agriculture_Allocation.png', bbox_inches='tight',pad_inches = 0.1,dpi=300)
+# plt.ylabel('Mean deficit [MCM]')
+# plt.xlim(0,12*years)
 # plt.show()
+
+# plt.figure(figsize=(15,5))
+# plt.plot(ntimes, optOF1.mean(axis = 1), label = 'Baseline')
+# plt.plot(ntimes, optOF2.mean(axis = 1), label = 'with KST')
+# plt.plot(ntimes, optOF3.mean(axis = 1), label = 'with KST and FS')
+# plt.xticks(ntimes, month_names, rotation=45, fontsize  = 10)
+# for i in range(years):
+#     plt.axvspan(7+i*12, 10+i*12, facecolor = 'blue', alpha = 0.2)
+# plt.legend()
+# plt.ylabel('Outflow [MCM]')
+# plt.xlim(0,years*12)
+# plt.show()
+
+
+# ###############################
+# # Precipitation for all catchments with monsoon
+# fig, axes = plt.subplots(nrows=13, ncols=1, figsize = (10,25), constrained_layout=True)
+# for i, key in enumerate(prec_filtered.columns):
+#     if key == 'Month':
+#         continue
+#     ax = axes[i-1]
+#     ax.plot(prec_filtered[key], label = key)
+#     ax.legend(loc = 'upper right', fontsize = 10)
+#     for j in prec_filtered.index:
+#         if j in monsoon and j-1 not in monsoon:
+#             ax.axvspan(j,j+4, facecolor = 'blue', alpha = 0.2)
+
+    
+# fig.text(0.04, 0.5, '[mm/month]', ha='center', va='center', rotation='vertical', fontsize = 10)
+# plt.xlabel('Time [month]')
+# plt.show()
+
+
+
+
+
+###############################
+# Average precipitation
+fig, ax1 = plt.subplots(figsize=(15,5))
+ax1.plot(ntimes, prec_average, label = 'Precipitation')
+ax1.plot(ntimes, pet_average, label = 'PET')
+ax1.set_ylabel('[mm/month]')
+
+ax2 = ax1.twinx()
+ax2.plot(ntimes, grun_average, label = 'G-RUN', color = 'green')
+ax2.set_ylabel('[$m^3$/s]')
+for j in prec_filtered.index:
+    if j in monsoon and j-1 not in monsoon:
+        plt.axvspan(j,j+4, facecolor = 'blue', alpha = 0.2)
+ax1.legend(loc = 'upper right')
+ax2.legend(loc = 'upper right', bbox_to_anchor = (1.0, 0.80))
+
+plt.xlabel('time [Month]')
+plt.show()
+
+

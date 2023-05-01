@@ -49,6 +49,21 @@ WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
+# Environmental flow requirements
+# calculated based on a natural system with 0 reservoirs and demand
+EFR = {10: 5.9622927513659825,
+ 7: 14.617603049440431,
+ 15: 105.69917884472947,
+ 14: 80.5799339501222,
+ 20: 8.775526753214725,
+ 24: 213.85938805404504,
+ 28: 135.26946525526006,
+ 33: 156.1032098400477,
+ 1: 48.82319498596385,
+ 12: 28.650793493573456,
+ 5: 4.159047023776799,
+ 25: 21.407829315289153,
+ 9: 20.088436993043594}
 
 savepath = r'Scenario1_savepath' #adust this path to write results in specific folder on your system
 
@@ -190,6 +205,11 @@ def obj_rule(model):
     return ag_ben + ind_ben + dom_ben + pow_ben
 
 model.obj = Objective(rule=obj_rule, sense = maximize)
+
+# Environmental flow requirement constraint
+def wd_EFR_c(model, nc, nt):
+    return sum(model.Qds[nc,nt] for nt in model.ntimes)*(1/len(ntimes)) >= EFR[nc]
+model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 # Agricultural demand constraint per catchment. Active for every time step and catchment, thus two indices
 def wd_ag_c(model, nc, nt):
@@ -504,6 +524,25 @@ for r in model.nres:
 SPTCap = pd.DataFrame.from_dict(SPTCap)
 SPTCap.to_excel(outpath)
 
+# Ecosystem shadow price
+outpath =  savepath + os.sep + r'EFR_dem_SP.xlsx'
+SPEFRDem = dict()
+for c in ncatch:
+    moptA = dict()
+    for t in ntimes:
+        moptA[t]=model.dual[model.wd_EFR[c,t]]
+    SPEFRDem[c]=moptA
+SPEFRDem = pd.DataFrame.from_dict(SPEFRDem)
+SPEFRDem.to_excel(outpath)
+
+
+################ POWER generated, to use in comparison plot file
+
+pow_gen = Aweq * optRelease
+AVpow_gen = pow_gen.mean(axis = 1)
+SUMpow_gen = pow_gen.sum(axis = 1)
+
+
 #----------------------------------------------------------------------------------------------
 # Output of objective function, optimal decisions and shadow prices
 #----------------------------------------------------------------------------------------------
@@ -806,90 +845,3 @@ SPTCap.to_excel(outpath)
 # SumA_pandas = pd.DataFrame.from_dict(SumA, orient = 'index',columns=['Allocation [m3]'])
 # SumA_pandas.to_csv(savepath + os.sep + 'SumAllocation.csv',index_label='ID')
 
-
-################ POWER generated, to use in comparison plot file
-
-
-pow_gen = Aweq * optRelease
-AVpow_gen = pow_gen.mean(axis = 1)
-SUMpow_gen = pow_gen.sum(axis = 1)
-
-###############MAR for our model
-
-# Initialize a new dictionary to store average runoff for all years for each catchment
-MAR_optOF = {}
-
-num_years = 29
-
-# Calculate the sum of each year and the average for all years for each catchment
-for catchment in optOF.columns:
-    total_sum = 0
-    for year in range(1, num_years + 1):
-        yearly_sum = 0
-        for month in range(1, 13):
-            index = (year - 1) * 12 + month - 1  # subtract 1 to match DataFrame index
-            if index < len(optOF) and index in optOF.index:
-                yearly_sum += optOF.loc[index, catchment] # Access the catchment value in the row
-        total_sum += yearly_sum
-        
-    average = total_sum / num_years
-    MAR_optOF[catchment] = average
-
-print(MAR_optOF)
-
-total_MAR_optOF = sum(MAR_optOF.values()) / len(MAR_optOF)
-print(total_MAR_optOF)
-
-###################Flow duration curve
-# Combine all catchment data into a single list
-flow_data = []
-for catchment in optOF.columns:
-    flow_data.extend(optOF[catchment].values)
-
-# Sort the data in descending order
-flow_data = np.array(flow_data)
-flow_data_sorted = np.sort(flow_data)[::-1]
-
-# Calculate the exceedance probability for each flow value
-n = len(flow_data_sorted)
-exceedance_probabilities = np.arange(1, n + 1) / (n + 1)
-
-# Create the plot
-plt.plot(exceedance_probabilities * 100, flow_data_sorted)
-plt.xlabel("Exceedance Probability (%)")
-plt.ylabel("Flow")
-plt.title("Flow Duration Curve")
-
-# Display the plot
-plt.show()
-
-########LFR and HFR
-
-# Calculate percentiles for LFR
-LFR_natural = np.percentile(flow_data_sorted, 50)*12
-LFR_good = np.percentile(flow_data_sorted, 25)*12
-LFR_fair = np.percentile(flow_data_sorted, 10)*12
-
-# Calculate HFR
-HFR = 0.2 * total_MAR_optOF
-
-# Calculate EWR
-EWR_natural = LFR_natural + HFR
-EWR_good = LFR_good + HFR
-EWR_fair = LFR_fair + HFR
-
-# Create a pandas DataFrame with the desired values
-table = pd.DataFrame({
-    'LFR': [LFR_natural, LFR_good, LFR_fair],
-    'HFR': [HFR, HFR, HFR],
-    'EWR': [EWR_natural, EWR_good, EWR_fair]
-}, index=['Natural', 'Good', 'Fair'])
-
-print(table)
-
-print('MAR:',total_MAR_optOF)
-
-
-####### Check if the constrain Demand >= allocation (for agriculture) is true for all catchment
-is_higher = (optDAg >= optAAg).all()
-print(is_higher)

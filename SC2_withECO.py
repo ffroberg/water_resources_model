@@ -44,6 +44,22 @@ WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 100*37 # THB /MWh
 ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
+# Environmental flow requirements
+# Desired ecosystem status
+# calculated based on a natural system with 0 reservoirs and demand
+EFR = {10: 5.9622927513659825,
+ 7: 14.617603049440431,
+ 15: 105.69917884472947,
+ 14: 80.5799339501222,
+ 20: 8.775526753214725,
+ 24: 213.85938805404504,
+ 28: 135.26946525526006,
+ 33: 156.1032098400477,
+ 1: 48.82319498596385,
+ 12: 28.650793493573456,
+ 5: 4.159047023776799,
+ 25: 21.407829315289153,
+ 9: 20.088436993043594}
 
 savepath = r'test_savepath' #adust this path to write results in specific folder on your system
 
@@ -129,50 +145,6 @@ for c in scatch_reservoir: # Replace reservoir name with reservoir ID in scatch_
 scatch_reservoir2 = {y:x for x,y in scatch_reservoir.items()} # invert the dictionary - can be used to look up catchment belonging to each reservoir
 del scatch_reservoir2[-1] # delete key -1
 
-# Environmental flow requirements
-# Mean annual runoff
-#MAR = {c: np.mean(list(ROpl[c].values())) for c in ROpl}
-
-# Desired ecosystem status
-# Change: poor = 0, fair = 10, good = 25, natural = 50   
-#eco_stat = 0.50
-
-# Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
-# ROpl_sort = {c: np.sort(list(ROpl[c].values()))[::-1] for c in ncatch}
-# exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
-# LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
-# HFR = {}
-
-# calculated based on a natural system with 0 reservoirs and demand
-EFR = {10: 5.9622927513659825,
- 7: 14.617603049440431,
- 15: 105.69917884472947,
- 14: 80.5799339501222,
- 20: 8.775526753214725,
- 24: 213.85938805404504,
- 28: 135.26946525526006,
- 33: 156.1032098400477,
- 1: 48.82319498596385,
- 12: 28.650793493573456,
- 5: 4.159047023776799,
- 25: 21.407829315289153,
- 9: 20.088436993043594}
-
-
-# for c in ncatch:
-#     HFR_90 = np.percentile(list(ROpl[c].values()),90)
-#     if HFR_90 <= 0.1*MAR[c]:
-#         HFR[c] = 0.2*MAR[c]
-#     elif HFR_90 <= 0.2*MAR[c]:
-#         HFR[c] = 0.15*MAR[c]
-#     elif HFR_90 <= 0.3*MAR[c]:
-#         HFR[c] = 0.07*MAR[c]
-#     else:
-#         HFR[c] = 0
-#     EFR[c] = LFR[c]+HFR[c]
-# print(EFR)
-#EFR = 65
-#EFR = 65
 
 #######
 # model and opt here
