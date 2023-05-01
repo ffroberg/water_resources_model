@@ -7,6 +7,10 @@ import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+
+#make plots bigger
+plt.rc('font', size=18)
+
 # Import total_release from scenarios
 from SC1_WRS_model import total_release as total_release1, total_spill as total_Spill1
 from SC2_WRS_model import total_release as total_release2, total_spill as total_Spill2
