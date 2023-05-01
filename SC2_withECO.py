@@ -142,6 +142,8 @@ del scatch_reservoir2[-1] # delete key -1
 # exceed = {c: np.arange(1, len(ROpl_sort[c])+1)/len(ROpl_sort[c]) for c in ncatch}
 # LFR = {c: np.percentile(list(ROpl[c].values()),eco_stat) for c in ncatch}
 # HFR = {}
+
+# calculated based on a natural system with 0 reservoirs and demand
 EFR = {10: 5.9622927513659825,
  7: 14.617603049440431,
  15: 105.69917884472947,
@@ -215,7 +217,7 @@ model.ResCap = Param(model.nres, within=NonNegativeReals,initialize = AResCap,de
 model.ResTCapm3 = Param(model.nres, within=NonNegativeReals,initialize = AResTCapm3,default=0) # Set turbine capacity for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ResSini = Param(model.nres, within=NonNegativeReals,initialize = AResini, default=0) # Set initial reservoir storage for all reservoirs; varies from reservoir to reservoir, therefore 1 index, MCM
 model.ThaChin = Param(within=NonNegativeReals,initialize =ThaChinDiv) # ThaChin diversion in percent of flow downstream of upper Chao Phraya; Just one number, therefore no index, dimensionless, fraction
-#model.EFRDem  = Param(model.ncatch,within=NonNegativeReals,initialize = EFR)
+
 #Set up the model
 #Objective function: Sum benefit over all users, all time steps and all subcatchments
 def obj_rule(model):
@@ -244,14 +246,8 @@ def wd_dom_c(model, nc, nt):
 model.wd_dom = Constraint(model.ncatch, model.ntimes, rule=wd_dom_c)
 
 # Environmental flow requirement constraint
-# def wd_EFR_c(model, nc, nt):
-#     return model.AEFR[nc,nt] >= model.EFRDem[nc]
-# model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
-
 def wd_EFR_c(model, nc, nt):
-    #return sum(model.Qds[nc,nt] for nc in model.ncatch for nt in model.ntimes)*(1/len(ntimes))>= 844 
     return sum(model.Qds[nc,nt] for nt in model.ntimes)*(1/len(ntimes))>= EFR[nc] 
-    #return model.Qds[nc,nt] >= model.EFRDem[nc]
 model.wd_EFR = Constraint(model.ncatch, model.ntimes, rule=wd_EFR_c)
 
 
