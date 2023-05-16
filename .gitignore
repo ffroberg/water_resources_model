@@ -1,7 +1,8 @@
+Data
 .DS_Store
 #Scenario1_savepath
 #Scenario3_savepath
-
+*.xlsx
 *png
 *.pyc
 AvAgDempl.xlsx
@@ -25,4 +26,8 @@ Res_Send_opt.xlsx
 Res_spills_opt.xlsx
 Res_TurCap_SP.xlsx
 Res_WB_SP.xlsx
+Archive 
+For_HandIn.zip  
+For_HandIn
+
 
