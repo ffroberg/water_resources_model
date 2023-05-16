@@ -49,7 +49,7 @@ WTPag = 0.05*37 # Thai Baht (THB) / m3 or million THB per million m3 1 Euro ~= 3
 WTPInd = 0.5*37 # THB / m3 or million THB per million m3
 WTPDom = 0.3*37 # THB / m3 or million THB per million m3
 WTPPow = 100*37 # THB /MWh
-ThaChinDiv = 0.5 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
+ThaChinDiv = 0 #ThaChin diversion, i.e. the fraction of the flow downstream of Upper Chao Phraya catchment that is diverted into Tha Chin. Fraction (dimensionless)
 
 
 savepath = r'test_savepath' #adust this path to write results in specific folder on your system

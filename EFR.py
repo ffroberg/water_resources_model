@@ -29,21 +29,21 @@ grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'))
 connectivity = pd.read_excel(os.path.join(datafolder, 'CPY_catch_connectivity.xlsx'))
 assets_char = pd.read_excel(os.path.join(datafolder, 'Assets_CPY_input_zero.xlsx'))
 
-MAR = {c: np.mean(list(optOF[c].values())) for c in optOF}
+MAR = {c: optOF[c].mean() for c in optOF}
 
 #Desired ecosystem status
 #Change: poor = 0, fair = 10, good = 25, natural = 50   
-eco_stat = 0.50
+eco_stat = 0.5
 
 # Low flow requirement (LFR), high flow requirement (HFR), and environmental flow requirement (EFR)
-optOF_sort = {c: np.sort(list(optOF[c].values()))[::-1] for c in ncatch}
+optOF_sort = {c: np.sort(optOF[c])[::-1] for c in ncatch}
 exceed = {c: np.arange(1, len(optOF_sort[c])+1)/len(optOF_sort[c]) for c in ncatch}
-LFR = {c: np.percentile(list(optOF[c].values()),eco_stat) for c in ncatch}
+LFR = {c: optOF[c].quantile(eco_stat) for c in optOF.columns}
 HFR = {}
 EFR = {}
 
 for c in ncatch:
-      HFR_90 = np.percentile(list(optOF[c].values()),90)
+      HFR_90 = np.percentile(optOF[c], 90)
       if HFR_90 <= 0.1*MAR[c]:
           HFR[c] = 0.2*MAR[c]
       elif HFR_90 <= 0.2*MAR[c]:
