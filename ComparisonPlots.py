@@ -34,8 +34,8 @@ datafolder = os.path.relpath(r'Data')
 
 # Download precipitation data
 prec = pd.read_excel(os.path.join(datafolder,'CRU_PRE_CPY_1991_2020.xlsx'))# EXCEL File with rainfall time series per subcatchment in mm/month
-pet = pd.read_excel(os.path.join(datafolder,'CRU_PET_CPY_1991_2020.xlsx'), sheet_name = 1)
-grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'), sheet_name=1)
+pet = pd.read_excel(os.path.join(datafolder,'CRU_PET_CPY_1991_2020.xlsx'), sheet_name = 1, skiprows= 1)
+grun = pd.read_excel(os.path.join(datafolder, 'G-RUN_CPY_1990_2019.xlsx'), sheet_name=1, skiprows=1)
 
 prec_filtered = prec[prec['Month'].isin(ntimestamps)]
 prec_average = prec_filtered.mean(axis = 1)
